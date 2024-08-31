@@ -20,17 +20,17 @@
 2. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
 3. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. `composer create-project laravel/laravel .` を実行し、Laravel環境を構築する
-4. 前章で作成した以下のコードを、上記「1.」でcloneしたソースコードを同じ場所に上書きする
+4. 前章で作成した以下のコードを、上記「1.」でcloneしたソースコードと同じ場所に上書きする
    
    ```text
     app
     │
     途中省略
     │
-    ├── resources
+    resources
     │   └── views
     │       └── index.blade.php
-    ├── routes
+    routes
     │   └── web.php
     ```
 
@@ -42,6 +42,17 @@
 
 本章の前半部ではデータベースとのやり取りを担当するモデルについて学びます。
 そのため、まずはデータベース環境を構築し、やり取りするデータベース用意します。
+
+前期同様、itemsテーブルは以下のような構造になっています。
+
+| カラム名 | データ型 | 制約 | 備考 |
+| - | - | - | - |
+|ident|int型|主キー、not null制約|商品番号|
+|name|varchar型|最大文字数50、not null制約|商品名|
+|maker|varchar型|最大文字数50、not null制約|メーカー・著者・アーティスト|
+|price|int型||価格|
+|image|varchar型|最大文字数20|画像名|
+|genre|varchar型|最大文字数10|ジャンル|
 
 ## .env ファイルの編集
 
@@ -237,8 +248,7 @@ php artisan make:seeder ItemTableSeeder
    database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルが用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
 
 以上で、データベースの準備が整いました。
-
-次は、モデルとコントローラ
+次はデータベースのやり取りを担当するモデルについて学びます。
 
 ## モデルについて
 
