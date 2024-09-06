@@ -43,9 +43,9 @@
     │
     resources
     ├── views
-    │   ├── items
-    │       ├── index.blade.php
-    │       └── show.blade.php
+    │   ├── item
+    │   │   ├── index.blade.php
+    │   │   └── show.blade.php
     │   └── index.blade.php
     routes
     ├── web.php
@@ -221,7 +221,7 @@ php artisan make:controller CartController
     use Illuminate\Http\Request;
     use App\Models\Cart; // 追加
 
-    class ItemController extends Controller
+    class CartController extends Controller
     {
         // --- 以下を追加 ---
 
