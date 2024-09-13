@@ -162,7 +162,7 @@ itemsテーブルとcartテーブルが作成されたか、phpMyAdminを使っ�
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、Itemモデルを作成する
+3. 以下のコマンドを実行して、Cartモデルを作成する
 
 ```bash
 php artisan make:model Cart
@@ -467,7 +467,7 @@ class CartController extends Controller
 最後に、カート内の商品を一覧表示するビューを作成します。
 
 1. `resources/views`ディレクトリに`cart`ディレクトリを作成する
-2. `cart`ディレクトリに`index.blade.php`を作成し、以下のように記述してください
+2. `cart`ディレクトリに`index.blade.php`を作成し、以下のように記述する
 
     **resources/views/cart/index.blade.php**
 
