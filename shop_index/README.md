@@ -31,8 +31,8 @@ LaravelはPHPで書かれたフレームワークで、モダンなウェブア�
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. ターミナルに`composer create-project laravel/laravel .` と入力し、`Enter`で実行する<br>
    ![](./images/composer_command_1.png)
-4. 30秒〜1分ぐらいして、以下のような表示がでれば、プロジェクトの作成完了となる(※2回目以降、コンテナを起動する際は、上記コマンドを実行する必要なし。)<br>
-      ![](./images/composer_command_2.png)
+4. 30秒〜1分ぐらいして、以下のような表示がでれば、プロジェクトの作成完了となる(※2回目以降、コンテナを起動後に、上記コマンド`composer create-project laravel/laravel .`を実行する必要なし)<br>
+   ![](./images/composer_command_2.png)
 5. 画面下部のポートをクリックし、地球儀マークをクリックする<br>
    ![](./images/port_click.png)
 6. 以下のような、画面が表示されればOK<br>
