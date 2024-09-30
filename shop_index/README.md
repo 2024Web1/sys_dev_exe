@@ -27,7 +27,7 @@ LaravelはPHPで書かれたフレームワークで、モダンなウェブア�
 
 以降の章でも同じことを繰り返しやっていくことになりますので、しっかりと理解しておきましょう。
 
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
+1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(**※初回のみ時間がかかる**)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. ターミナルに`composer create-project laravel/laravel .` と入力し、`Enter`で実行する<br>
    ![](./images/composer_command_1.png)
