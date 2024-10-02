@@ -116,7 +116,7 @@ MySQLのデフォルトポート番号は`3306`です。
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、itemsテーブルを作成する
+3. 以下のコマンドを実行して、itemsテーブル用のマイグレーションファイルを作成する
 
 ```bash
 php artisan make:migration create_items_table
@@ -146,6 +146,9 @@ php artisan make:migration create_items_table
     ```
 
     **【解説】**
+    `public function up(): void {Schema::create('items', function (Blueprint $table) {`: <br>
+    マイグレーションファイル作成時にデフォルトで記述されているコードです。
+    ここでは、「`up`メソッド内にテーブル定義を記述するんだ」の理解で問題ございません。
 
     `$table->integer`: <br>
     整数型のカラムを定義します。
@@ -158,10 +161,6 @@ php artisan make:migration create_items_table
     `$table->primary`: <br>
     主キーを定義します。`$table->integer('ident')->primary();`と記述することで、`ident`カラムを主キーに設定しています。
 
-    ※ここで、Laravelでのテーブル定義について補足しておきます。
-    Laravelでは、テーブルの主キーは`id`という自動採番付きのカラムがデフォルトで用意されており、`timestamps`という作成日時と更新日時を管理するためのカラムもデフォルトで用意されています。
-    以降出てくるモデルなどデータベースとやり取りをするコードでは、これらを前提としているため、`id`、`timestamps`を削除する場合は、モデルなどのコードを修正する必要があります。
-
 6. 以下のコマンドを実行して、マイグレーションを実行する
 
     ```bash
@@ -170,6 +169,18 @@ php artisan make:migration create_items_table
 
 これで、itemsテーブルが作成されました。
 引き続き、itemsテーブルにデータを挿入するためのシーダーを作成します。
+
+**【Laravelのテーブル定義について補足】**<br>
+Laravelでテーブル定義をする際以下のカラムがデフォルトで定義されています。
+- `id`(主キー、自動採番付き(auto increment))
+- `timestamps`(作成日時と更新日時を管理するためのカラム)
+
+Laravelの前提としては、カラムとしてこれらを定義すること前提として構造化されているので、`id`、`timestamps`を削除する場合は、他のコード(モデルなど)も修正する必要がでてきます。
+
+本授業では、
+- 極力前期の「ミニショップ」の仕様を再現
+- Laravelの前提ルールに則らない場合でもWebアプリを作成できる
+ことを目的に、`id`、`timestamps`は使用しない前提で進めていきます。
 
 ### 商品テーブル「items」
 
