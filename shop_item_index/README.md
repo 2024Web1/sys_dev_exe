@@ -12,12 +12,11 @@
   - [phpMyAdminでのデータ確認](#phpmyadminでのデータ確認)
   - [モデルについて](#モデルについて)
   - [コントローラについて](#コントローラについて)
-  - [ルーティングとジャンル選択画面の修正](#ルーティングとジャンル選択画面の修正)
-    - [ルーティングの修正](#ルーティングの修正)
-    - [ジャンル選択画面の修正](#ジャンル選択画面の修正)
-  - [ジャンル別商品一覧画面の作成](#ジャンル別商品一覧画面の作成)
+  - [ルーティングとビューの作成](#ルーティングとビューの作成)
+    - [ルーティングの作成](#ルーティングの作成)
+    - [ビューの作成](#ビューの作成)
   - [動作確認](#動作確認)
-  - [まとめ](#まとめ)
+  - [【課題】ジャンル別商品一覧画面の作成](#課題ジャンル別商品一覧画面の作成)
 
 ## 事前準備
 
@@ -142,7 +141,18 @@ php artisan make:migration create_items_table
 5. `up`メソッドを以下のように修正する
 
     ```php
-    public function up(): void
+    <?php
+
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
+
+    return new class extends Migration
+    {
+        /**
+         * Run the migrations.
+         */
+        public function up(): void
         {
             Schema::create('items', function (Blueprint $table) {
                 // デフォルトの記述はコメントアウト
@@ -159,9 +169,21 @@ php artisan make:migration create_items_table
                 // --- ここまで ---
             });
         }
+        /**
+         * Reverse the migrations.
+         */
+        public function down(): void
+        {
+            Schema::dropIfExists('items');
+        }
+    };
     ```
 
     **【解説】**
+    `use...`: <br>
+    useとは、他のクラスを読み込むためのキーワードです。
+    pythonでいう`import`に近い役割を果たします。
+
     `public function up(): void {Schema::create('items', function (Blueprint $table) {`: <br>
     マイグレーションファイル作成時にデフォルトで記述されているコードです。
     ここでは、「`up`メソッド内にテーブル定義を記述するんだ」の理解で問題ございません。
@@ -176,6 +198,12 @@ php artisan make:migration create_items_table
 
     `$table->primary`: <br>
     主キーを定義します。`$table->integer('ident')->primary();`と記述することで、`ident`カラムを主キーに設定しています。
+
+    `public function down(): void {Schema::dropIfExists('items');}`: <br>
+    マイグレーションをロールバックする際に実行される処理を記述します。
+    ロールバックとは、実行したマイグレーションを取り消すことを指します。
+    `php artisan migrate:rollback`コマンドを実行することで、`down`メソッド内の処理が実行されます。
+    ここでは、`items`テーブルを削除する処理を記述しています。
 
 6. 以下のコマンドを実行して、マイグレーションを実行する
 
@@ -256,8 +284,10 @@ php artisan make:seeder ItemTableSeeder
     ```
 
     **【解説】**
-    `use Illuminate\Support\Facades\DB;`: <br>
-    以下のテーブルにデータを挿入するための、`DB`クラスを使用するための宣言です。
+    `namespace...`: <br>
+    namespaceとは、クラスをグループ化するためのキーワードです。
+    ここでは、`Database\Seeders`という名前空間に`ItemsTableSeeder`クラスを定義しています。
+    名前空間を使うことで、同じクラス名でも異なる名前空間に属するクラスを区別することができます。
 
     `DB::table('items')->insert`: <br>
     連想配列を使って、itemsテーブルにデータを挿入します。
@@ -326,7 +356,8 @@ php artisan make:model Item
     }
     ```
 
-**【解説】**
+**【解説】**　<br>
+
 `protected $primaryKey = 'ident';`: <br>
 [マイグレーションの補足](#マイグレーション)で説明したように、itemsテーブルの主キーがデフォルトの`id`ではなく`ident`であるため、`$primaryKey`プロパティを使って、主キーが`ident`であることを指定しています。
 この指定がなければ、モデルを使用してデータを取得する際、`id`を主キーとして扱おうとしてしまいエラーが発生します。
@@ -344,7 +375,7 @@ MVCモデルにおいて、コントローラは、クライアントからの�
 では、コントローラを作成しましょう。
 手動でコントローラのPHPファイルも作成できますが、Laravelにはコマンドを使ってコントローラを作成する機能があります。
 
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
+1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. 以下のコマンドを実行して、ItemControllerを作成する
 
@@ -366,10 +397,10 @@ php artisan make:controller ItemController
     class ItemController extends Controller
     {
         // --- 以下を追加 ---
-        public function index(Request $request)
+        public function index()
         {
-            $items = Item::where('genre', $request->genre)->get();
-            return view('item.index', ['items' => $items]);
+            $items = Item::all();
+            return view('item.index', compact('items'));
         }
         // --- ここまで ---
     }
@@ -377,76 +408,54 @@ php artisan make:controller ItemController
 
 **【解説】**
 
-コントローラでは、基礎言語のPHPとは大きく異なる書き方が多数出てくるので、細かく解説していきます。
-
-`namespace App\Http\Controllers`: <br>
-このコントローラがLaravelのどのディレクトリに属しているかを示します。
-これにより、他のクラスと名前の衝突を避けることができます。
-
-`use App\Models\Item`: `Item`モデルを使用する宣言をします。
-前期で習った`require_once`のようなもので、`Item`モデルを使うためにはこの記述が必要です。
+`use App\Models\Item`: 先ほど[モデルについて]で作成した、`Item`モデルを使うために記述しています。
+前期で習った`require_once`のようなもので、itemsテーブルとのやり取りを行うために、`Item`モデルを使いたいために記述しています。
 
 `public function index`: <br>
-Laravelでは、コントローラに記述する`index` メソッドは、「一覧表示画面を表示するためのメソッド」として一般的に使われます。
+Laravelでは、コントローラに記述する`index` メソッドは、「一覧表示画面を表示するためのメソッド名」として一般的に使われます。
 
-`Request $request`: <br>
-`Request`クラスは、あらかじめ定義されているHTTPリクエストを表すクラスです。
-上部で`use Illuminate\Http\Request;`として読み込んでいるため、`Request`クラスを使用することができます。
+`$items = Item::all();`: <br>
+`Item::all()`は、`Item`モデルを使って、itemsテーブルの全データを取得するメソッドです。
+`$items`には、itemsテーブルの全データが格納されます。
 
-また、`Request $request`と記述することにより、newを使わずにクラスから`$request`オブジェクトを使うことができます。
-PHPでは、メソッド内に`$request = new Request();`と記述していたのが、Laravelでは、メソッドの**引数に**`Request $request`と記述するだけで、`$request`オブジェクトを使うことができます。
+`return view('item.index', compact('items'));`: <br>
 
-`$request`オブジェクトにより、リクエスト時にGET・POSTメソッドを使って送られたデータを取得することができ、非常に便利です。
-
-このメソッドの引数にクラスとそのオブジェクトを記述する方法は、**依存性の注入**と呼ばれ、効率的に開発する上でメリットがあるのですが、詳細は別の章で説明します。
-
-`$items = Item::where('genre', $request->genre)->get();`: <br>
-
-`Item::where('genre', $request->genre)`: <br>
-`Item`モデルの`genre`カラムが、リクエスト時に送られた`genre`の値と一致するレコードを取得します。
-
-`->get()`: <br>
-`get`メソッドは、`where`メソッドで取得したレコードを取得します。
-
-`return view('item.index', ['items' => $items]);`: <br>
-`view`関数は、ビューを表示するための関数です。
+`view`メソッドは、ビューを表示するためのメソッドです。
 第1引数には、表示するビューのファイル名を指定します。
-第2引数には、ビューに渡すデータを連想配列で指定します。
+第2引数には、ビューに渡すデータを連想配列で指定します。<br>
 ここでは、`item.index`というビューに`$items`という変数を渡しています。
+この`item.index`は、後ほど作成する`resources/views/item/index.blade.php`ファイルを指します。
 
-なお、このようにモデルを使ってデータベースからデータを取得する際、直接SQL文を書くことなく、データを取得することができます。
-これは、Laravelの**Eloquent ORM**という機能により、データベースとのやり取りを簡単に行うことができるためです。
+**【補足】**<br>
+このようにモデルを使ってデータベースからデータを取得する際、直接SQL文を書くことなく、モデルのメソッドを使ってデータベースとのやり取りを行うことができます。
+これは、Laravelの**Eloquent ORM(エロクアント ORM)**という機能で、モデルを使ってデータベースとのやり取りを行う際に、SQL文を書かずにデータベースとのやり取りを行うことができます。
 
-## ルーティングとジャンル選択画面の修正
+## ルーティングとビューの作成
 
-ジャンル別商品一覧画面を作成する前に、前章で作成したものにいくつか修正を加える必要があります。
+それでは、先ほど作成したコントローラを使って、商品データを取得し、ビューに渡すためのルーティングとビューを作成しましょう。
+ルーティングとビューが作成できれば、ブラウザで商品データが表示されるようになります。
 
-### ルーティングの修正
+### ルーティングの作成
 
-現状、ジャンル選択画面からリクエストを送信しても、先ほど作成したコントローラ(ItemController.php)にリクエストが送信されないため、ジャンル選択画面で選択したジャンルをコントローラに送信するためのルーティングを追加する必要があります。
+---
 
-勘の良い方は気づいたかもしれませんが、Laravelではリクエストからコントローラまでの経路をルーティングで定義します。
-ですので、以下の図で示すと、リクエストとコントローラの間にルーティングが挟まっているイメージです。
+まずはクライアントからリクエストがサーバーに送信された際に、必要に応じてマッピングを行う必要があります。(※マッピングとは、特定のURLにアクセスしたときにどのビューやコントローラを呼び出すかを定義することです。)
 
-![](./images/mvc_r.png)
+その役目を担うのがルーティングでしたね。
+では、`routes/web.php`ファイルにルーティングを設定しましょう。
 
-ルーティングを追加するためには、`routes/web.php`ファイルを以下のように修正してください。
+今回は、ItemControllerの`index`メソッドを呼び出すためのルーティングを設定します。
 
 ```php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController; // 追加
 
-// デフォルトのルート設定はコメントアウトしてください
+// デフォルトのルート設定はコメントアウトしています
 // Route::get('/', function () {
 //     return view('welcome');
 // });
 
-Route::get('/', function () {
-    return view('index');
-});
-
-// --- 以下を追加 ---
-Route::post('item', [ItemController::class, 'index'])->name('item.index');
+Route::get('item', [ItemController::class, 'index']);
 ```
 
 **【解説】**
@@ -454,58 +463,27 @@ Route::post('item', [ItemController::class, 'index'])->name('item.index');
 `use App\Http\Controllers\ItemController;`: <br>
 `ItemController`クラスを使用するために、`ItemController`クラスを読み込んでいます。
 
-`Route::post('item', [ItemController::class, 'index'])->name('item.index');`: <br>
-`Route::post`メソッドは、POSTメソッドでリクエストが送信された際に、指定したコントローラの指定したメソッドを呼び出すルーティングを定義します。
-`'item'`は、ルーティングのURLを指定します。ここでは、`'item'`と指定しているため、`http://localhost/item`にPOSTメソッドでリクエストが送信された際に、`ItemController`の`index`メソッドが呼び出されます。
+`Route::get('item', [ItemController::class, 'index']);`: <br>
+`Route::get`メソッドは、GETリクエストを受け取った際に、指定したコントローラの指定したメソッドを呼び出すためのルーティングを設定します。
+第1引数には、URLを指定します。ここでは、`item`というURLにリクエストが送信された際に、`ItemController`クラスの`index`メソッドを呼び出すように設定しています。
 
 `[ItemController::class, 'index']`は、`ItemController`クラスの`index`メソッドを呼び出すことを示しています。
 
-`->name('item.index')`は、このルーティングに名前を付けています。
-この名前を使って、ビューからリンクを作成することができます。
+**【補足】**<br>
+勘の良い方は気づいたかもしれませんが、Laravelではリクエストからコントローラまでの経路をルーティングで定義します。
+ですので、以下の図で示すと、リクエストとコントローラの間にルーティングが挟まっているイメージです。
 
-### ジャンル選択画面の修正
+![](./images/mvc_r.png)
 
-次に、ジャンル選択画面(resources/views/index.blade.php)を修正します。
-ジャンル選択画面のフォームの`action`属性が空欄になっているため、先ほど追加したルーティングにリクエストを送信するように修正します。
+### ビューの作成
 
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>ジャンル選択</h3>
-<!-- action属性の値にルーティングのURLを指定 -->
-<form method="POST" action="{{ route('item.index') }}">
-    @csrf
-    <label><input type="radio" name="genre" value="pc">パソコン</label>&nbsp;&nbsp;
-    <label><input type="radio" name="genre" value="book" checked>ブック</label>&nbsp;&nbsp;
-    <label><input type="radio" name="genre" value="music">ミュージック</label>&nbsp;&nbsp;
-    <input type="submit" value="選択">
-</form>
-</body>
-</html>
-```
+---
 
-**【解説】**
+次に、商品データを表示するためのビューを作成します。
 
-`<form method="POST" action="{{ route('item.index') }}">`: <br>
-`action`属性に`{{ route('item.index') }}`を指定することで、`item.index`という名前のルーティングにリクエストを送信するように設定しています。
-
-## ジャンル別商品一覧画面の作成
-
-ジャンル選択画面からジャンルを選択し、リクエストを送信すると、ItemControllerのindexメソッドが呼び出され、選択したジャンルに応じた商品一覧画面を表示するようになります。
-
-では、ジャンル別商品一覧画面を作成しましょう。
-
-まず、作成する場所ですが、Laravelでは、ビューは`resources/views`ディレクトリに配置していましたね。
-ジャンル別商品一覧画面は、アプリケーション「ミニショップ」の**商品機能**に関するビューになるため、`resources/views/item`ディレクトリに配置します。
-
-では、`resources/views/item`ディレクトリに`index.blade.php`ファイルを作成し、以下のコードを記述してください。
-※Laravelでは、モデル、コントローラはコマンドでファイルを自動作成できますが、ビューは自動作成できませんので、手動で作成してください。
+まず、`resources/views`ディレクトリに`item`ディレクトリを作成し、その中に`index.blade.php`ファイルを作成します。
+※先ほどのItemControllerの`index`メソッドで`return view('item.index', compact('items'));`としているため、`item`ディレクトリに`index.blade.php`ファイルを作成する必要があります。
+※`item`ディレクトリ並びに`index.blade.php`ファイルは、コマンドではなく手動で作成してください。
 
 ```php
 <!DOCTYPE html>
@@ -513,44 +491,27 @@ Route::post('item', [ItemController::class, 'index'])->name('item.index');
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
+<title>サンプル</title>
 </head>
 <body>
-<h3>ジャンル別商品一覧</h3>
+<h3>商品一覧</h3>
     <table>
         <tr>
-            <th>&nbsp;</th>
             <th>商品名</th>
-            <th>メーカー・著者<br>アーティスト</th>
             <th>価格</th>
-            <th>詳細</th>
         </tr>
     @foreach( $items  as  $item )
         <tr>
-        <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$item->image )}}"></td>
-        <td class="td_item_name"> {{  $item->name }} </td>
-        <td class="td_item_maker"> {{  $item->maker }}  </td>
-        <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
-        <!-- リンク先についてはここでは一旦空欄とします -->
-        <td><a href="">詳細</a></td>
+            <td class="td_item_name"> {{  $item->name }} </td>
+            <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
         </tr>
     @endforeach
     </table>
-    <br>
-    <a href="{{ route('index') }}">ジャンル選択に戻る</a>
 </body>
 </html>
 ```
 
 **【解説】**
-
-`<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">`: <br>
-`asset`ヘルパ関数は、`public`ディレクトリのパスを返す関数です。
-
-`<img class="mini_img" src="{{ asset('images/'.$item->image )}}">`: <br>
-`$item->image`には、商品画像のファイル名が入っています。
-`asset`ヘルパ関数を使って、`public/images`ディレクトリ内の画像ファイルを表示しています。
 
 `$items`: <br>
 `$items`は、ItemControllerのindexメソッドで取得した商品データが入っています。
@@ -561,37 +522,25 @@ Route::post('item', [ItemController::class, 'index'])->name('item.index');
 `$items`には、商品データが入っています。
 `$items`のデータを1つずつ取り出して、`$item`に代入しています。
 
-`{{ $item->name }}`、`{{  $item->maker }}`、`{{  number_format( $item->price) }}`: <br>
+`{{ $item->name }}`、`{{  number_format( $item->price) }}`: <br>
 Laravelには、ビューで変数を表示したり、関数を呼び出したりする`{{  }}`という構文があります。
 今回は、変数を表示する際に使用しています。
 なお、この構文はセキュリティ対策のため、エスケープ処理が自動で行われます。
-`$item->name`、`$item->maker`、`$item->price`は、商品データの各カラムの値を取得しています。
-
-`<a href="{{ route('index') }}">ジャンル選択に戻る</a>`: <br>
-ジャンル選択画面に戻るリンクを作成しています。
+`$item->name`、`$item->price`は、商品データの各カラムの値を取得しています。
 
 ## 動作確認
 
-これで、ジャンル選択画面からジャンルを選択し、リクエストを送信すると、選択したジャンルに応じた商品一覧画面が表示されるようになりました。
+これで、クライアントからリクエストを送信すると、商品一覧が表示されるようになりました。
 
 では、実際に動作確認を行いましょう。
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、画面下部のポートをクリックし、地球儀マークをクリックする<br>
+2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、画面下部のポートをクリックし、「web:80」の地球儀マークをクリックする<br>
    ![](./images/port_click.png)
-3. ブック、パソコン、ミュージックそれぞれの一覧が表示されればOK
-   ![](./images/genre_pc.png)
-   ![](./images/item_list_pc.png)
-    ![](./images/genre_book.png)
-    ![](./images/item_list_book.png)
-    ![](./images/genre_music.png)
-    ![](./images/item_list_music.png)
+3. ブラウザのアドレスバーの末尾に`/item`を追加し、Enterキーを押す
+4. 商品一覧が表示されればOK<br>
+    ![](./images/item_index.png)
 
-## まとめ
+## 【課題】ジャンル別商品一覧画面の作成
 
-本章では、Laravelのモデルとコントローラについて学びました。
-前章と合わせて、Laravelを通じて、MVCモデルの基本である、モデル、ビュー、コントローラについて経験しましたがいかがだったでしょうか。
-
-大切なことは、Laravelの基本的なルールに従いコードを作成することにより、意識せずともMVCモデルを実装できる、つまり、オブジェクト思考に則った効率性・保守性の高いコードに標準化されるということです。
-
-これがフレームワークが大規模開発に向いていると言われる理由の一つです。
+課題については、[こちら](../shop_item_index_kadai/README.md)に詳細を記載しています。
