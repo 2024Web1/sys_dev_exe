@@ -186,8 +186,8 @@ php artisan make:migration create_items_table
 これで、itemsテーブルが作成されました。
 引き続き、itemsテーブルにデータを挿入するためのシーダーを作成します。
 
-**【Laravelのテーブル定義について補足】**<br>
-Laravelでテーブル定義をする際以下のカラムがデフォルトで定義されています。
+**【補足】**<br>
+Laravelでテーブル定義をする際、以下のカラムがデフォルトで定義されています。
 - `id`(主キー、自動採番付き(auto increment))
 - `timestamps`(作成日時と更新日時を管理するためのカラム)
 
@@ -283,8 +283,9 @@ php artisan make:seeder ItemTableSeeder
    ![](./images/phpmyadmin_2.png)
    ![](./images/phpmyadmin_3.png)
 
-   ※画像を見ると、itemsテーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
-   database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルが用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
+    **【補足】**<br>
+    ※画像を見ると、itemsテーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
+    database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルがデフォルトで用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
 
 以上で、データベースの準備が整いました。
 次はデータベースのやり取りを担当するモデルについて学びます。
@@ -307,7 +308,6 @@ php artisan make:model Item
 ```
 
 4. app/Models/Item.php が作成されていることを確認する
-
 5. 以下のようにItem.phpを修正する
 
     ```php
@@ -326,10 +326,12 @@ php artisan make:model Item
     }
     ```
 
-上記のように、`php artisan make:model Item`コマンドを実行し、Itemモデルを作成することで、itemsテーブルとのやり取りを行うための準備ができました。
+**【解説】**
+`protected $primaryKey = 'ident';`: <br>
+[マイグレーションの補足](#マイグレーション)で説明したように、itemsテーブルの主キーがデフォルトの`id`ではなく`ident`であるため、`$primaryKey`プロパティを使って、主キーが`ident`であることを指定しています。
+この指定がなければ、モデルを使用してデータを取得する際、`id`を主キーとして扱おうとしてしまいエラーが発生します。
 
-`protected $primaryKey = 'ident';`では、[マイグレーション](#マイグレーション)の補足で説明したように、itemsテーブルの主キーがデフォルトの`id`ではなく`ident`であるため、`$primaryKey`プロパティを使って、主キーが`ident`であることを指定しています。
-この指定をしなければ、モデルを使用してデータを取得する際、`id`を主キーとして扱おうとしてしまい、エラーが発生します。
+上記のように、`php artisan make:model Item`コマンドを実行し、Itemモデルを作成することで、itemsテーブルとのやり取りを行うための準備ができました。
 
 では、次にコントローラを使って、itemsテーブルからデータを取得し、ビューに渡す処理を行います。
 
