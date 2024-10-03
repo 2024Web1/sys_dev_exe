@@ -486,6 +486,7 @@ Route::get('item', [ItemController::class, 'index']);
 ※先ほどのItemControllerの`index`メソッドで`return view('item.index', compact('items'));`としているため、`item`ディレクトリに`index.blade.php`ファイルを作成する必要があります。
 ※`item`ディレクトリ並びに`index.blade.php`ファイルは、コマンドではなく手動で作成してください。
 
+{% raw %}
 ```php
 <!DOCTYPE html>
 <html lang="ja">
@@ -511,6 +512,7 @@ Route::get('item', [ItemController::class, 'index']);
 </body>
 </html>
 ```
+{% endraw %}
 
 **【解説】**
 
