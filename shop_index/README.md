@@ -90,7 +90,7 @@ Bladeテンプレートは、Laravelのテンプレートエンジンで、よ�
 <body>
 <h3>入力フォーム〜プルダウン〜</h3>
 <!-- サンプルのためaction属性は空白にしています-->
-<form amethod="POST" action="">
+<form method="POST" action="">
    @csrf
    ジャンル
    <select name="genre">
