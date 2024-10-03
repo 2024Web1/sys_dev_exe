@@ -525,8 +525,10 @@ Route::get('item', [ItemController::class, 'index']);
 `$items`には、商品データが入っています。
 `$items`のデータを1つずつ取り出して、`$item`に代入しています。
 
+{% raw %}
 `{{ $item->name }}`、`{{  number_format( $item->price) }}`: <br>
 Laravelには、ビューで変数を表示したり、関数を呼び出したりする`{{  }}`という構文があります。
+{% endraw %}
 今回は、変数を表示する際に使用しています。
 なお、この構文はセキュリティ対策のため、エスケープ処理が自動で行われます。
 `$item->name`、`$item->price`は、商品データの各カラムの値を取得しています。
