@@ -286,6 +286,7 @@ php artisan make:seeder ItemTableSeeder
     ```
 
     **【解説】**
+    
     `namespace...`: <br>
     namespaceとは、クラスをグループ化するためのキーワードです。
     ここでは、`Database\Seeders`という名前空間に`ItemTableSeeder`クラスを定義しています。

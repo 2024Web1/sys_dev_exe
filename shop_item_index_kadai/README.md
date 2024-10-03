@@ -110,7 +110,7 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 
 先ほど述べた`->name('items.index')`の恩恵を受けましょう！
 ルーティングにつけた名前を使い、`<form>`タグの`action`属性を以下のように修正してください。
-
+{% raw %}
 ```php
 <!DOCTYPE html>
 <html lang="ja">
@@ -134,6 +134,7 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 `<form>`タグの`action`属性には、ルーティングにつけた名前を指定します。
 ルーティングの名前を使用する関数として、ここでは`route`関数を使い、`items.index`という名前のルートを指定しています。
 なお、ビューで関数を使用する場合は、`{{ }}`で囲む必要があります。
+{% endraw %}
 
 これにより、直接的にURLを記述せずとも、名前をつけることでより感覚的にルーティングを指定することができます。
 
@@ -202,6 +203,7 @@ PHPでは、メソッド内に`$request = new Request();`と記述していた�
 作成する場所ですが、ジャンル別商品一覧画面は、アプリケーション「ミニショップ」の**商品機能**に関するビューになるため、resources/views/item ディレクトリに配置します。
 以下の手順で作成してください。
 
+{% raw %}
 - Googleのクラスルーム[課題ページ]()に画像とcssファイルの元データがあるのでダウンロードする
 - `public`ディレクトリに`images`ディレクトリを作成し、ダウンロードした画像ファイルを配置する
 - `public`ディレクトリに`css`ディレクトリを作成し、ダウンロードしたcssファイルを配置する
@@ -222,6 +224,7 @@ PHPでは、メソッド内に`$request = new Request();`と記述していた�
 `<img class="mini_img" src="{{ asset('images/'.$item->image )}}">`: <br>
 Laravelでは、ビューでcssファイルや画像ファイルを読み込む際に、`asset`関数を使います。
 `asset`関数は、`public`ディレクトリのパスを返す関数であり、`public`ディレクトリ内のファイルを読み込む際に使用します。
+{% endraw %}
 
 ## 動作確認
 
