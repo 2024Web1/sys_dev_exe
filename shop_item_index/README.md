@@ -181,7 +181,7 @@ php artisan make:migration create_items_table
     ```
 
     **【解説】**
-    
+
     `use...`: <br>
     useとは、他のクラスを読み込むためのキーワードです。
     pythonでいう`import`に近い役割を果たします。
@@ -255,7 +255,7 @@ php artisan make:seeder ItemTableSeeder
     use Illuminate\Database\Seeder;
     use Illuminate\Support\Facades\DB; // 追加(忘れずに！)
 
-    class ItemsTableSeeder extends Seeder
+    class ItemTableSeeder extends Seeder
     {
         /**
         * Run the database seeds.
@@ -288,7 +288,7 @@ php artisan make:seeder ItemTableSeeder
     **【解説】**
     `namespace...`: <br>
     namespaceとは、クラスをグループ化するためのキーワードです。
-    ここでは、`Database\Seeders`という名前空間に`ItemsTableSeeder`クラスを定義しています。
+    ここでは、`Database\Seeders`という名前空間に`ItemTableSeeder`クラスを定義しています。
     名前空間を使うことで、同じクラス名でも異なる名前空間に属するクラスを区別することができます。
 
     `DB::table('items')->insert`: <br>
