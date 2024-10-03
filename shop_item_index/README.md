@@ -181,6 +181,7 @@ php artisan make:migration create_items_table
     ```
 
     **【解説】**
+    
     `use...`: <br>
     useとは、他のクラスを読み込むためのキーワードです。
     pythonでいう`import`に近い役割を果たします。
