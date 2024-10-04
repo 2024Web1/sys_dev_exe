@@ -2,7 +2,6 @@
 
 - [モデル、コントローラ](#モデルコントローラ)
   - [事前準備](#事前準備)
-  - [はじめに](#はじめに)
   - [本章の狙い](#本章の狙い)
   - [Laravelでのデータベース環境構築](#laravelでのデータベース環境構築)
     - [.env ファイルの編集](#env-ファイルの編集)
@@ -21,14 +20,7 @@
 
 ## 事前準備
 
-1. [こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneする
-2. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
-3. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-4. ターミナルに`composer create-project laravel/laravel .`と入力後、実行し、Laravel環境を構築する
-
-## はじめに
-
-本章では、Laravelの基本的な機能であるモデル、コントローラについて学びます。
+前回の[ビュー、ルーティング](../shop_index/README.md)でcloneしたコードをそのまま利用してください。
 
 ## 本章の狙い
 
@@ -453,11 +445,9 @@ Laravelでは、コントローラに記述する`index` メソッドは、「�
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController; // 追加
 
-// デフォルトのルート設定はコメントアウトしています
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+// 途中省略
 
+// 以下を追加
 Route::get('item', [ItemController::class, 'index']);
 ```
 
@@ -560,5 +550,3 @@ Laravelには、ビューで変数を表示したり、関数を呼び出した�
 ## 【課題】ジャンル別商品一覧画面の作成
 
 課題については、[こちら](../shop_item_index_kadai/README.md)に詳細を記載しています。
-
-
