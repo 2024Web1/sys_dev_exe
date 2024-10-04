@@ -15,7 +15,7 @@
 
 ## 事前準備
 
-[こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
+[こちらのページ](https://classroom.github.com/a/rD3Wg66b)から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
 
 ## 本章の狙い
 
@@ -84,7 +84,7 @@
 
 ### 合格確認方法
 
-1. 本課題の[課題ページ]()に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/rD3Wg66b)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 3. **一番上**の行に、緑色のチェックが入っていればOK<br>

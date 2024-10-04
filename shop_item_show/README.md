@@ -1,12 +1,12 @@
-# 条件付きSELECT、ファサード、ルートモデルバインディング(フレームワークはバージョンによって便利な書き方が増えるよ)、メソッドチェーンなどLaraveから出てきた便利な書き方(バージョンが変わると便利なものが増えたり、書き方が変わるよ)、依存性の注入
+# Laravelの便利な書き方を学ぼう(ルートモデルバインディング、ファサード、メソッドチェーン、依存性の注入)
 
-- [条件付きSELECT、ファサード、ルートモデルバインディング(フレームワークはバージョンによって便利な書き方が増えるよ)、メソッドチェーンなどLaraveから出てきた便利な書き方(バージョンが変わると便利なものが増えたり、書き方が変わるよ)、依存性の注入](#条件付きselectファサードルートモデルバインディングフレームワークはバージョンによって便利な書き方が増えるよメソッドチェーンなどlaraveから出てきた便利な書き方バージョンが変わると便利なものが増えたり書き方が変わるよ依存性の注入)
+- [Laravelの便利な書き方を学ぼう(ルートモデルバインディング、ファサード、メソッドチェーン、依存性の注入)](#laravelの便利な書き方を学ぼうルートモデルバインディングファサードメソッドチェーン依存性の注入)
   - [事前準備](#事前準備)
   - [本章の狙い](#本章の狙い)
-  - [ルーティングとジャンル別商品一覧画面の修正](#ルーティングとジャンル別商品一覧画面の修正)
+  - [ルートモデルバインディング](#ルートモデルバインディング)
     - [ルーティングの修正](#ルーティングの修正)
-    - [ジャンル別商品一覧画面の修正](#ジャンル別商品一覧画面の修正)
-  - [コントローラの修正](#コントローラの修正)
+    - [ジャンル別商品一覧の修正](#ジャンル別商品一覧の修正)
+    - [コントローラの修正](#コントローラの修正)
   - [商品詳細画面の作成](#商品詳細画面の作成)
   - [商品詳細画面のバグ修正](#商品詳細画面のバグ修正)
   - [まとめ](#まとめ)
@@ -17,101 +17,64 @@
 
 ## 本章の狙い
 
-- ルートモデルバインディングを使って、コントローラで商品IDに対応する商品情報を取得する方法を学ぶ
+- ルートモデルバインディングを使って、コントローラで商品ID(主キー)に対応する商品情報を取得する方法を学ぶ
+- Laravelの便利な書き方を学ぶ(今までのコードで既出のものもある)
 - 商品詳細画面を再構築する
 
-## ルーティングとジャンル別商品一覧画面の修正
+## ルートモデルバインディング
 
-商品詳細画面を作成する前に、前章で作成したものにいくつか修正を加える必要があります。
+前回の[モデル、コントローラ]の章では、サンプルとして、itemsテーブルからすべての商品情報を取得し、一覧を表示しました。
+今回は、ある特定の商品情報を取得して表示する方法を学びます。
+
+Laravelの中でもやり方は色々ありますが、今回は**ルートモデルバインディング**を使って、商品IDに対応する商品情報を取得します。
 
 ### ルーティングの修正
 
-現状、ジャンル別商品一覧画面の「詳細」リンクをクリックしても商品詳細画面に遷移しません。
-そのため、商品詳細画面に遷移するためのルーティングを追加する必要があります。
+---
 
-ルーティングを追加するためには、`routes/web.php`ファイルを以下のように修正してください。
+今回のサンプル用のルーティングを`routes/web.php`に追加しますが、今までとは少し異なる書き方があります。
 
 ```php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+// 途中省略
 
-Route::get('/', function () {
-    return view('index');
-});
-Route::post('item', [ItemController::class, 'index'])->name('item.index');
+
+Route::get('item', [ItemController::class, 'index']);
 // --- 以下を追加 ---  
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
+Route::get('item/show/{item}', [ItemController::class, 'show']);
 ```
 
 **【解説】**
 
-`Route::get('item/{id}', [ItemController::class, 'show'])->name('item.show');`: <br>
+`Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');`: <br>
 `item/show/{item}`は、商品詳細画面に遷移するためのURLです。
+URLの末尾に`/{item}`が付いているのは、商品IDを指定するためです。
+
+PHPでいうところの、GETリクエスト時のクエリパラメータに相当します。
 `{item}`は、商品IDを表しています。
-※なぜ商品IDなのに、`{item}`という名前なのかは、後述します。
+
+ここで大事なのではなぜ商品IDを指定したいのに、`{item}`という名前なのかです。
+これは、ルートモデルバインディングを使うためのルールです。
+ルートモデルバインディングを使う場合、ルーティングの定義とコントローラのメソッドの引数名が一致している必要があります。
+詳細はコントローラの修正で説明します。
 
 `[ItemController::class, 'show']`は、`ItemController`クラスの`show`メソッドを呼び出すことを意味します。
-`name('item.show')`は、このルートに名前を付けています。
-この名前は、ビューでリンクを生成する際に使用します。
 
-### ジャンル別商品一覧画面の修正
+### ジャンル別商品一覧の修正
 
-次に、ジャンル別商品一覧画面(`resources/views/index.blade.php`)を修正します。
-上記のルーティングを参考に、商品詳細画面に遷移するためのリンクを追加します。
+---
 
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>ジャンル別商品一覧</h3>
-    <table>
-        <tr>
-            <th>&nbsp;</th>
-            <th>商品名</th>
-            <th>メーカー・著者<br>アーティスト</th>
-            <th>価格</th>
-            <th>詳細</th>
-        </tr>
-    @foreach( $items  as  $item )
-        <tr>
-        <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$item->image )}}"></td>
-        <td class="td_item_name"> {{  $item->name }} </td>
-        <td class="td_item_maker"> {{  $item->maker }}  </td>
-        <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
-        <!-- 以下のhref属性を修正 -->
-        <td><a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a></td>
-        </tr>
-    @endforeach
-    </table>
-    <br>
-    <a href="{{ route('index') }}">ジャンル選択に戻る</a>
-</body>
-</html>
-```
+次に、前回の[モデル、コントローラ]の章で作成した商品の一覧画面に詳細のリンクを追加します。
 
-**【解説】**
-
-`<a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>`: <br>
-`route('item.show',  ['item' => $item->ident])`は、商品詳細画面に遷移するためのリンクを生成しています。
-`item.show`は、`web.php`で定義したルート名です。
-`['item' => $item->ident]`は、商品IDを指定しています。
-ここで指定した商品IDは、ルーティングの`{item}`に渡され、ItemControllerの`show`メソッドで受け取ることができます。
-※なぜ商品IDなのに、`{item}`という名前なのかは、後述します。
-
-## コントローラの修正
+### コントローラの修正
 
 次に、商品詳細画面のビューを表示するために、コントローラに`show`メソッドを作成します。
-ItemController(`app/Http/Controllers/ItemController.php`)を以下のように修正してください。
+Laravelにおける`show`というメソッド名は、一般的に、「IDなどで指定されたリソースを表示するためのメソッド名」として使われます。
+今回だと、商品IDに対応する商品情報を表示するためのメソッドとして使います。
+
+`app/Http/Controllers/ItemController.php` を以下のように修正してください。
 
 ```php
 <?php
@@ -123,10 +86,10 @@ use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $items = Item::where('genre', $request->genre)->get();
-        return view('item.index', ['items' => $items]);
+        $items = Item::all();
+        return view('item.index', compact('items'));
     }
 
     // --- ここから追加 ---
@@ -142,12 +105,15 @@ class ItemController extends Controller
 
 `public function show(Item $item)`: <br>
 `show`メソッドは、商品詳細画面を表示するためのメソッドです。
-注目すべきは、いきなりreturn文がありますが、これは、商品IDに対応する商品情報を取得してビューに渡していることを意味します。
-これを可能にしているのが、`Item $item`です。
-この`$item`には、商品IDに対応する商品情報が自動的に格納されています
-このLaravelが自動的に商品IDに対する商品情報を取得する機能を、**ルートモデルバインディング(Route Model Binding)**と言います。
+注目すべきは、いきなりreturn文があることです。
 
-このルートモデルバインディングを使用するためには、ルーティングの定義とコントローラのメソッドの引数名が一致している必要があります。
+これは、商品IDに対応する商品情報を取得してビューに渡していることを意味します。
+これを可能にしているのが、引数の`Item $item`です。
+
+この`$item`には、商品IDに対応する商品情報が**自動的に格納されています。**
+この機能が**ルートモデルバインディング(Route Model Binding)**と呼ばれるものです。
+
+復習ですが、このルートモデルバインディングを使用するためには、ルーティングの定義とコントローラのメソッドの引数名が一致している必要があります。
 以下のような記述を思い出してみてください。
 
 **`routes/web.php`**
