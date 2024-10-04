@@ -4,6 +4,7 @@
   - [事前準備](#事前準備)
   - [本章の狙い](#本章の狙い)
   - [Laravel環境の構築](#laravel環境の構築)
+  - [Laravelのディレクトリ構造](#laravelのディレクトリ構造)
   - [ビューについて](#ビューについて)
   - [Bladeテンプレートについて](#bladeテンプレートについて)
   - [ビューの作成](#ビューの作成)
@@ -27,7 +28,7 @@
 
 以降の章でも同じことを繰り返しやっていくことになりますので、しっかりと理解しておきましょう。
 
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(**※初回のみ時間がかかる**)
+1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(**前期同様初回のみ時間がかかる**)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. ターミナルに`composer create-project laravel/laravel .` と入力し、`Enter`で実行する<br>
    ![](./images/composer_command_1.png)
@@ -47,6 +48,18 @@ php artisan serve
 ```
 
 ただし、本授業ではコンテナ起動時に自動でサーバーが起動するため、上記のコマンドを実行する必要はありません。
+
+## Laravelのディレクトリ構造
+
+Laravel環境を構築することにより、clone直後と比較してディレクトリ構造が変わっていることに気づいたと思います。
+
+**【Laravel構築前】**
+
+![](./images/directory_before.png)
+
+**【Laravel構築後】**
+
+![](./images/directory_after.png)
 
 ## ビューについて
 
