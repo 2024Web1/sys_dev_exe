@@ -10,6 +10,7 @@
   - [③ルーティングの設定](#ルーティングの設定)
   - [動作確認](#動作確認)
   - [課題の提出について](#課題の提出について)
+    - [GitHub Secretsの登録](#github-secretsの登録)
     - [課題の合格基準](#課題の合格基準)
     - [合格確認方法](#合格確認方法)
 
@@ -71,16 +72,106 @@
 ## 課題の提出について
 
 提出した課題はGitHub上で自動採点されます。
-提出後、課題が合格しているかを確認してください。
-合格していない場合は修正後pushし、再提出してください。
+従来通りGitHub上にpushすれば完了で、自動採点がはじまります。
+ただし、GitHub Classroomの仕様上、以下の作業を事前に行わないと **Lravel環境での自動採点ができない**ので、以下の対応を忘れずに行ってください。
+
+### GitHub Secretsの登録
+
+LaravelをGitHub上で動かすためには、`.env`ファイルが必要です。
+しかし、`env`ファイルには、データベースの接続情報など、セキュリティ上の重要な情報が含まれているため、Laravelの設定上、`.env`ファイルをGitHubにpushできないようにされています。
+
+そこで、GitHubのSecrets機能を利用して、`.env`ファイルの内容をGitHubに登録する必要があります。
+
+1. GitHubの[課題リポジトリ](https://classroom.github.com/a/rD3Wg66b)のページに移動
+2. 画面上部のSettingsをクリック<br>
+   ![](./images/settings.png)
+3. 左のメニューから「Secrity」→「Secrets and variables」→「Actions」をクリック<br>
+   ![](./images/menu.png)
+
+これで現在登録済みのSecretsが表示されます(初期状態は空っぽ)。
+ここで以下の手順に従ってSecretsを登録してください。
+
+1. `New repository secret`をクリック<br>
+   ![](./images/new_repository_secret.png)
+2. Nameに`DOTENV`、Secretに以下のファイルの内容をコピペ<br>
+   ![](./images/new_secret.png)
+
+      ```env
+      APP_NAME=Laravel
+      APP_ENV=local
+      APP_KEY=base64:BhoJlMO/+lbsBhF8Dn/ky+3pykh8n5Z3hwj9DtNcn18=
+      APP_DEBUG=true
+      APP_TIMEZONE=UTC
+      APP_URL=http://localhost
+
+      APP_LOCALE=en
+      APP_FALLBACK_LOCALE=en
+      APP_FAKER_LOCALE=en_US
+
+      APP_MAINTENANCE_DRIVER=file
+      # APP_MAINTENANCE_STORE=database
+
+      BCRYPT_ROUNDS=12
+
+      LOG_CHANNEL=stack
+      LOG_STACK=single
+      LOG_DEPRECATIONS_CHANNEL=null
+      LOG_LEVEL=debug
+
+      DB_CONNECTION=mysql
+      DB_HOST=db
+      DB_PORT=3306
+      DB_DATABASE=SAMPLE
+      DB_USERNAME=sampleuser
+      DB_PASSWORD=samplepass
+
+      SESSION_DRIVER=database
+      SESSION_LIFETIME=120
+      SESSION_ENCRYPT=false
+      SESSION_PATH=/
+      SESSION_DOMAIN=null
+
+      BROADCAST_CONNECTION=log
+      FILESYSTEM_DISK=local
+      QUEUE_CONNECTION=database
+
+      CACHE_STORE=database
+      CACHE_PREFIX=
+
+      MEMCACHED_HOST=127.0.0.1
+
+      REDIS_CLIENT=phpredis
+      REDIS_HOST=127.0.0.1
+      REDIS_PASSWORD=null
+      REDIS_PORT=6379
+
+      MAIL_MAILER=log
+      MAIL_HOST=127.0.0.1
+      MAIL_PORT=2525
+      MAIL_USERNAME=null
+      MAIL_PASSWORD=null
+      MAIL_ENCRYPTION=null
+      MAIL_FROM_ADDRESS="hello@example.com"
+      MAIL_FROM_NAME="${APP_NAME}"
+
+      AWS_ACCESS_KEY_ID=
+      AWS_SECRET_ACCESS_KEY=
+      AWS_DEFAULT_REGION=us-east-1
+      AWS_BUCKET=
+      AWS_USE_PATH_STYLE_ENDPOINT=false
+
+      VITE_APP_NAME="${APP_NAME}"
+      ```
+
+3. `Add secret`をクリックして登録
 
 ### 課題の合格基準
 
 以下を合格基準とします。
 
 1. `http://localhost:{ポート番号}/`にアクセスすると、ジャンル選択画面が表示されること
-2. 画面上部に「ジャンル選択」と表示されること
-3. パソコン、ブック、ミュージックの3つのジャンルをラジオボタンで選択できること
+2. タイトル(`<title></title>`)にショッピングサイトと表示されていること<br>
+   ![](./images/index_title.png)
 
 ### 合格確認方法
 
