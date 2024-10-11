@@ -52,10 +52,10 @@
     途中省略
     │
     resources
-    │   └── views
-    │       └── index.blade.php
+    ├── views 
+    │   └── index.blade.php
     routes
-    │   └── web.php
+    └── web.php
     ```
 
 5. [モデル、コントローラ](../shop_item_index/README.md)の章と同様に、`items`テーブルを作成し、データを挿入する(※手順はあえて書いてないので、頑張ってトライしてみましょう！)

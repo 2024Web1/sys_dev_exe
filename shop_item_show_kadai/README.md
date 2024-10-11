@@ -2,173 +2,88 @@
 
 - [商品詳細画面](#商品詳細画面)
   - [事前準備](#事前準備)
-  - [はじめに](#はじめに)
-  - [ルーティングとジャンル別商品一覧画面の修正](#ルーティングとジャンル別商品一覧画面の修正)
-    - [ルーティングの修正](#ルーティングの修正)
-    - [ジャンル別商品一覧画面の修正](#ジャンル別商品一覧画面の修正)
-  - [コントローラの修正](#コントローラの修正)
-  - [商品詳細画面の作成](#商品詳細画面の作成)
+  - [本章の狙い](#本章の狙い)
+  - [①Laravel環境の構築](#laravel環境の構築)
   - [商品詳細画面のバグ修正](#商品詳細画面のバグ修正)
   - [まとめ](#まとめ)
 
 ## 事前準備
 
-前回の[ジャンル別商品一覧画面](../shop_item_index/README.md)でcloneしたコードをそのまま利用してください。
+[こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
 
-## はじめに
+## 本章の狙い
 
-本章では、Laravelを使って、商品詳細画面を作成します。
+- [Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章で学んだ知識を定着させる
+- 商品詳細画面を再構築する
 
-## ルーティングとジャンル別商品一覧画面の修正
+## ①Laravel環境の構築
+
+1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
+2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
+3. ターミナルに`composer create-project laravel/laravel .` と入力し、`Enter`で実行する<br>
+   ![](./images/composer_command_1.png)
+4. [【課題】ジャンル別商品一覧画面の作成](../shop_item_index_kadai/README.md)までで作成した以下のコードを、上記「1.」でcloneしたソースコードと同じ場所に上書きする
+   
+   ```text
+    app
+    ├──  
+    │
+    途中省略
+    │
+    resources
+    ├── views
+    │   ├── items
+    │   │   └── index.blade.php    
+    │   └── index.blade.php
+    routes
+    └── web.php
+    ```
+
+5. [モデル、コントローラ](../shop_item_index/README.md)の章と同様に、`items`テーブルを作成し、データを挿入する(※手順はあえて書いてないので、頑張ってトライしてみましょう！)
+6. phpmyadminで`items`テーブルが確認できればOK<br>
+   ![](./images/phpmyadmin_1.png)<br>
+   ![](./images/phpmyadmin_2.png)<br>
+   ![](./images/phpmyadmin_3.png)
+
+## ②ルーティングとジャンル別商品一覧画面の修正
 
 商品詳細画面を作成する前に、前章で作成したものにいくつか修正を加える必要があります。
 
-### ルーティングの修正
+### ②−1 ルーティングの修正
+
+---
 
 現状、ジャンル別商品一覧画面の「詳細」リンクをクリックしても商品詳細画面に遷移しません。
 そのため、商品詳細画面に遷移するためのルーティングを追加する必要があります。
 
-ルーティングを追加するためには、`routes/web.php`ファイルを以下のように修正してください。
+ルーティングを追加するためには、`routes/web.php`ファイルを以下の観点から修正してください。
 
-```php
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ItemController;
+- GETリクエスト時にItemControllerの`show`メソッドを呼び出すルートを追加する
+- マッピングするURLを`item/show/{xxxx}`に設定する(`xxxx`にはルートモデルバインディングのための名前を指定する※わからなければ[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章を参考にすること)
+- ルーティングの名前を`item.show`に設定する
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+### ②−2 ジャンル別商品一覧画面の修正
 
-Route::get('/', function () {
-    return view('index');
-});
-Route::post('item', [ItemController::class, 'index'])->name('item.index');
-// --- 以下を追加 ---  
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
-```
-
-**【解説】**
-
-`Route::get('item/{id}', [ItemController::class, 'show'])->name('item.show');`: <br>
-`item/show/{item}`は、商品詳細画面に遷移するためのURLです。
-`{item}`は、商品IDを表しています。
-※なぜ商品IDなのに、`{item}`という名前なのかは、後述します。
-
-`[ItemController::class, 'show']`は、`ItemController`クラスの`show`メソッドを呼び出すことを意味します。
-`name('item.show')`は、このルートに名前を付けています。
-この名前は、ビューでリンクを生成する際に使用します。
-
-### ジャンル別商品一覧画面の修正
+---
 
 次に、ジャンル別商品一覧画面(`resources/views/index.blade.php`)を修正します。
-上記のルーティングを参考に、商品詳細画面に遷移するためのリンクを追加します。
+上記の[ルーティングの修正](#ルーティングの修正)を参考に、商品詳細画面に遷移するための詳細リンクを以下の観点から修正してください。
 
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>ジャンル別商品一覧</h3>
-    <table>
-        <tr>
-            <th>&nbsp;</th>
-            <th>商品名</th>
-            <th>メーカー・著者<br>アーティスト</th>
-            <th>価格</th>
-            <th>詳細</th>
-        </tr>
-    @foreach( $items  as  $item )
-        <tr>
-        <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$item->image )}}"></td>
-        <td class="td_item_name"> {{  $item->name }} </td>
-        <td class="td_item_maker"> {{  $item->maker }}  </td>
-        <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
-        <!-- 以下のhref属性を修正 -->
-        <td><a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a></td>
-        </tr>
-    @endforeach
-    </table>
-    <br>
-    <a href="{{ route('index') }}">ジャンル選択に戻る</a>
-</body>
-</html>
-```
-
-**【解説】**
-
-`<a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>`: <br>
-`route('item.show',  ['item' => $item->ident])`は、商品詳細画面に遷移するためのリンクを生成しています。
-`item.show`は、`web.php`で定義したルート名です。
-`['item' => $item->ident]`は、商品IDを指定しています。
-ここで指定した商品IDは、ルーティングの`{item}`に渡され、ItemControllerの`show`メソッドで受け取ることができます。
-※なぜ商品IDなのに、`{item}`という名前なのかは、後述します。
+- 詳細リンクの宛先に対象のルーティングを指定する(ルーティングの名前で指定すること)
+- 商品IDを渡す※商品IDを渡すときの名前に注意！わからなければ[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章を参考にすること
 
 ## コントローラの修正
 
-次に、商品詳細画面のビューを表示するために、コントローラに`show`メソッドを作成します。
-ItemController(`app/Http/Controllers/ItemController.php`)を以下のように修正してください。
+次に、商品詳細画面のビューを表示するために、ItemController(`app/Http/Controllers/ItemController.php`)を修正します。
+以下の観点から修正してください。
 
-```php
-<?php
+- `show`メソッドの追加(`show`メソッドの仕様は以下のとおり)
+  - ルートモデルバインディングにより、商品IDと一致する商品情報を取得
+  - 商品情報をビューに渡す
 
-namespace App\Http\Controllers;
+## ビューの作成
 
-use App\Models\Item;
-use Illuminate\Http\Request;
-
-class ItemController extends Controller
-{
-    public function index(Request $request)
-    {
-        $items = Item::where('genre', $request->genre)->get();
-        return view('item.index', ['items' => $items]);
-    }
-
-    // --- ここから追加 ---
-    public function show(Item $item)
-    {
-        return view('item.show', ['item' => $item]);
-    }
-    // --- ここまで追加 ---
-}
-```
-
-**【解説】**
-
-`public function show(Item $item)`: <br>
-`show`メソッドは、商品詳細画面を表示するためのメソッドです。
-注目すべきは、いきなりreturn文がありますが、これは、商品IDに対応する商品情報を取得してビューに渡していることを意味します。
-これを可能にしているのが、`Item $item`です。
-この`$item`には、商品IDに対応する商品情報が自動的に格納されています
-このLaravelが自動的に商品IDに対する商品情報を取得する機能を、**ルートモデルバインディング(Route Model Binding)**と言います。
-
-このルートモデルバインディングを使用するためには、ルーティングの定義とコントローラのメソッドの引数名が一致している必要があります。
-以下のような記述を思い出してみてください。
-
-**`routes/web.php`**
-
-```php
-// {item}の部分がコントローラのメソッドの引数名と一致している
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
-```
-
-**`resources/views/index.blade.php`**
-
-```php
-// ['item' => $item->ident]の`item`の部分がコントローラのメソッドの引数名と一致している
-<a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>
-```
-
-Laravelでは、コントローラに記述する`show` メソッドは、一般的に、指定されたリソースを表示するためのメソッドとして使われます。
-例えば、今回のように商品IDに対応する商品情報を表示する場合に使われます。
-
-## 商品詳細画面の作成
-
-次に、商品詳細画面を作成します。
+次に、ビューとして商品詳細画面を作成します。
 `resources/views/item`ディレクトリに`show.blade.php`ファイルを作成し、以下のように記述してください。
 
 ```php
