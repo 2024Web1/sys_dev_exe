@@ -207,13 +207,13 @@ PHPでは、メソッド内に`$request = new Request();`と記述していた�
 以下の手順で作成してください。
 
 {% raw %}
-- Googleのクラスルーム[課題ページ]()に画像とcssファイルの元データがあるのでダウンロードする
+- [Googleのクラスルーム]()に画像とcssファイルの元データがあるのでダウンロードする
 - `public`ディレクトリに`images`ディレクトリを作成し、ダウンロードした画像ファイルを配置する
 - `public`ディレクトリに`css`ディレクトリを作成し、ダウンロードしたcssファイルを配置する
-- resources/views ディレクトリに item ディレクトリを作成する
-- item ディレクトリに index.blade.php ファイルを作成する(Laravelではビューを作成するコマンドがないので、手動で作成すること)
-- index.blade.php にコードを記述する
-   - コードは前期の[ミニショップ①(ジャンル選択画面、ジャンル別商品一覧画面)](https://2024web1.github.io/web_app_dev/ec-site-i/)を参考にし、[モデル、コントローラ](../shop_item_index/README.md)の章で学んだ内容を反映させること
+- `resources/views` ディレクトリに `item` ディレクトリを作成する
+- `item` ディレクトリに `index.blade.php` ファイルを作成する(Laravelではビューを作成するコマンドがないので、手動で作成すること)
+- `index.blade.php` にコードを記述する
+   - コードは前期の[仕様書①：ジャンル選択画面、ジャンル別商品一覧画面](https://classroom.google.com/c/NjYwMjEyMzgyMzQ2/a/Njk3NzM1MzQwMjM2/details)を参考にし、[モデル、コントローラ](../shop_item_index/README.md)の章で学んだ内容を反映させること
        - `foreach`ディレクティブを使って、商品データを表示する
        - 商品データは、ItemControllerの`index`メソッドで取得した`$items`を使う
        - 「詳細」リンクについては、ルーティング設定ができていないので、空欄(`<a href="">`)にする

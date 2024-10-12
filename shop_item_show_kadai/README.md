@@ -4,8 +4,6 @@
   - [事前準備](#事前準備)
   - [本章の狙い](#本章の狙い)
   - [①Laravel環境の構築](#laravel環境の構築)
-  - [商品詳細画面のバグ修正](#商品詳細画面のバグ修正)
-  - [まとめ](#まとめ)
 
 ## 事前準備
 
@@ -26,9 +24,25 @@
    
    ```text
     app
-    ├──  
+    ├── Http
+    │   └── Controllers
+    │       └── ItemController.php
+    ├── Models
+    │   └── Item.php
     │
     途中省略
+    │
+    database
+    ├── migrations
+    │   └── 20XX_XX_XX_XXXXXX_create_items_table.php
+    ├── seeds
+    │   ├── DatabaseSeeder.php
+    │   └── ItemsTableSeeder.php
+    public
+    ├── css
+    │   └── minishop.css
+    ├── images
+    │   └── xxx.png(15個の画像ファイル)
     │
     resources
     ├── views
@@ -36,10 +50,14 @@
     │   │   └── index.blade.php    
     │   └── index.blade.php
     routes
-    └── web.php
+    ├── web.php
+    │
+    途中省略
+    │
+    .env
     ```
 
-5. [モデル、コントローラ](../shop_item_index/README.md)の章と同様に、`items`テーブルを作成し、データを挿入する(※手順はあえて書いてないので、頑張ってトライしてみましょう！)
+5. コマンドでマイグレーションとシーダーを実行する(※コマンドを忘れた人は、[モデル、コントローラ](../shop_item_index/README.md)の章を参照すること)
 6. phpmyadminで`items`テーブルが確認できればOK<br>
    ![](./images/phpmyadmin_1.png)<br>
    ![](./images/phpmyadmin_2.png)<br>
@@ -72,7 +90,7 @@
 - 詳細リンクの宛先に対象のルーティングを指定する(ルーティングの名前で指定すること)
 - 商品IDを渡す※商品IDを渡すときの名前に注意！わからなければ[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章を参考にすること
 
-## コントローラの修正
+## ③コントローラの修正
 
 次に、商品詳細画面のビューを表示するために、ItemController(`app/Http/Controllers/ItemController.php`)を修正します。
 以下の観点から修正してください。
@@ -81,67 +99,39 @@
   - ルートモデルバインディングにより、商品IDと一致する商品情報を取得
   - 商品情報をビューに渡す
 
-## ビューの作成
+## ④ビューの作成
 
 次に、ビューとして商品詳細画面を作成します。
-`resources/views/item`ディレクトリに`show.blade.php`ファイルを作成し、以下のように記述してください。
+`resources/views/item`ディレクトリに`show.blade.php`ファイルを作成し、以下の観点からコードを記述してください。
 
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>商品詳細</h3>
-<!-- action属性は空にしています -->
-<form method="POST" action="">
-    @csrf
-    <input type="hidden" name="ident" value="{{ $item->ident }}">
-    <table>
-        <tr><th>商品名</th>
-        <td>{{ $item->name }}</td></tr>
-        <tr><td colspan="2"><div class="td_center">
-        <img class="detail_img" src="{{ asset('images/'.$item->image )}}"></div></td></tr>
-        <tr><th>メーカー・著者<br>アーティスト</th>
-        <td>{{ $item->maker }}</td></tr>
-        <tr><th>価 格</th>
-        <td>&yen;{{  number_format( $item->price) }}</td></tr>
-        <tr><th>注文数</th>
-        <td><select name="quantity">
-            @for ( $i=1;  $i<=10;  $i++ )
-                <option value="{{ $i }}"> {{ $i }} </option>
-            @endfor
-        </select></td></tr>
-        <tr><th colspan="2"><input type="submit" value="カートに入れる"></th></tr>
-    </table>
-</form>
-<br>
-<a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>
-</body>
-</html>
-```
+- コードは前期の[ミニショップ②(商品詳細画面)](https://classroom.google.com/c/NjYwMjEyMzgyMzQ2/a/Njk3NzM1MzQwMjM2/details)を参考にし、[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)までの章で学んだ内容を反映させること
+{% raw %}
+  - cssを適用する
+  - 商品データの埋め込みには、`{{ }}`を使用する
+  - ディレクティブを使用する
+  - 注文数のプルダウンは、1から10までの数値を表示するために、以下の例にならって`@for`ディレクティブを使用すること
 
-**【解説】**
+    ```php
+    @for ( $i=1;  $i<=10;  $i++ )
+        <option value="{{ $i }}"> {{ $i }} </option>
+    @endfor
+    ```
 
-`<input type="hidden" name="ident" value="{{ $item->ident }}">`: <br>
-`<input type="hidden" name="ident" value="{{ $item->ident }}">`は、商品IDをPOSTするための隠しフィールドです。
+  - ジャンル別商品一覧に戻るリンクを作成する
+{% endraw %}
 
-`<a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>`: <br>
-`route('item.index',['genre' => $item->genre])`は、ジャンル別商品一覧画面に遷移するためのリンクを生成しています。
+## ⑤動作確認(1回目)
 
-以上で、商品詳細画面の作成は完了です。
-実際に、動作確認をしてみましょう。
-以下のように、ジャンル選択画面から商品詳細画面まで遷移できればOKです。
+これで、商品詳細画面の作成は完了です。
+では、実際に動作確認を行いましょう。
+
+以下のように、商品詳細画面に遷移するリンクをクリックすると、商品詳細画面が表示されればOKです。
 
 ![](./images/genre.png)
 ![](./images/item_list.png)
 ![](./images/item_show.png)
 
-## 商品詳細画面のバグ修正
+## ⑥商品詳細画面のバグ修正
 
 現状のままだと、商品詳細画面からジャンル別商品一覧に戻るリンクをクリックすると、以下のようなエラーが発生します。
 
@@ -181,16 +171,11 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 `{genre?}`の`?`は、POSTリクエスト時にURL末尾にパラメータでジャンルが指定されていない場合でも、問題なく遷移できるようにするためのものです。
 
 以上で、商品詳細画面のバグ修正は完了です。
-実際に、動作確認をしてみましょう。
+以下のように、商品詳細画面からジャンル別商品一覧に戻るリンクをクリックしても、エラーが発生しないことが確認できればOKです。
 
 ![](./images/genre.png)
 ![](./images/item_list.png)
 ![](./images/item_show_back.png)
 ![](./images/item_list.png)
 
-## まとめ
 
-本章では、商品詳細画面を作成しました。
-
-商品詳細画面を作成する際に、データを取得するコードを記述することなく、自動でデータを取得するルートモデルバインディングを学びました。
-また、GETリクエストとPOSTリクエストの両方を受け付けるルーティングを学びました。

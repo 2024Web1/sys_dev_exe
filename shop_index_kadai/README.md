@@ -10,13 +10,13 @@
   - [③ルーティングの設定](#ルーティングの設定)
   - [動作確認](#動作確認)
   - [課題の提出について](#課題の提出について)
-    - [GitHub Secretsの登録](#github-secretsの登録)
+    - [.envファイルの修正(今回の課題のみ)](#envファイルの修正今回の課題のみ)
     - [課題の合格基準](#課題の合格基準)
     - [合格確認方法](#合格確認方法)
 
 ## 事前準備
 
-[こちらのページ](https://classroom.github.com/a/E-VnbwaY)から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
+[こちらのページ](https://classroom.github.com/a/oXyhjSJ_)から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
 
 ## 本章の狙い
 
@@ -73,97 +73,41 @@
 
 提出した課題はGitHub上で自動採点されます。
 従来通りGitHub上にpushすれば完了で、自動採点がはじまります。
-ただし、GitHub Classroomの仕様上、以下の作業を事前に行わないと **Lravel環境での自動採点ができない**ので、以下の対応を忘れずに行ってください。
+ただし、**pushする前に以下の作業を事前に行わないと自動採点ができない**ので、以下の対応を忘れずに行ってください。
 
-### GitHub Secretsの登録
+### .envファイルの修正(今回の課題のみ)
 
-LaravelをGitHub上で動かすためには、`.env`ファイルが必要です。
-しかし、`env`ファイルには、データベースの接続情報など、セキュリティ上の重要な情報が含まれているため、Laravelの設定上、`.env`ファイルをGitHubにpushできないようにされています。
+---
 
-そこで、GitHubのSecrets機能を利用して、`.env`ファイルの内容をGitHubに登録する必要があります。
+今回の課題ではデータベースの設定が必要ありませんが、GitHub上の自動採点のために`.env`ファイルに以下の内容を追加してください。
+次回の課題からは、データベースの設定を課題中に行っているため、この手順は不要です。
 
-1. GitHubの[課題リポジトリ](https://classroom.github.com/a/rD3Wg66b)のページに移動
-2. 画面上部のSettingsをクリック<br>
-   ![](./images/settings.png)
-3. 左のメニューから「Secrity」→「Secrets and variables」→「Actions」をクリック<br>
-   ![](./images/menu.png)
+1. `.env`ファイルの該当箇所を以下のように修正
 
-これで現在登録済みのSecretsが表示されます(初期状態は空っぽ)。
-ここで以下の手順に従ってSecretsを登録してください。
-
-1. `New repository secret`をクリック<br>
-   ![](./images/new_repository_secret.png)
-2. Nameに`DOTENV`、Secretに以下のファイルの内容をコピペ<br>
-   ![](./images/new_secret.png)
-
-      ```env
+      ```bash
       APP_NAME=Laravel
       APP_ENV=local
-      APP_KEY=base64:BhoJlMO/+lbsBhF8Dn/ky+3pykh8n5Z3hwj9DtNcn18=
+      APP_KEY=base64:UwGfTSBkd2fawCCiK1eBmOLhQKNF5Ll7Bk1QcKtwhSI=
       APP_DEBUG=true
       APP_TIMEZONE=UTC
       APP_URL=http://localhost
 
-      APP_LOCALE=en
-      APP_FALLBACK_LOCALE=en
-      APP_FAKER_LOCALE=en_US
+      # --- 途中省略 ---
 
-      APP_MAINTENANCE_DRIVER=file
-      # APP_MAINTENANCE_STORE=database
-
-      BCRYPT_ROUNDS=12
-
-      LOG_CHANNEL=stack
-      LOG_STACK=single
       LOG_DEPRECATIONS_CHANNEL=null
       LOG_LEVEL=debug
 
+      # --- 以下のように編集 ---
       DB_CONNECTION=mysql
       DB_HOST=db
       DB_PORT=3306
       DB_DATABASE=SAMPLE
       DB_USERNAME=sampleuser
       DB_PASSWORD=samplepass
+      # --- ここまで ---
 
-      SESSION_DRIVER=database
-      SESSION_LIFETIME=120
-      SESSION_ENCRYPT=false
-      SESSION_PATH=/
-      SESSION_DOMAIN=null
-
-      BROADCAST_CONNECTION=log
-      FILESYSTEM_DISK=local
-      QUEUE_CONNECTION=database
-
-      CACHE_STORE=database
-      CACHE_PREFIX=
-
-      MEMCACHED_HOST=127.0.0.1
-
-      REDIS_CLIENT=phpredis
-      REDIS_HOST=127.0.0.1
-      REDIS_PASSWORD=null
-      REDIS_PORT=6379
-
-      MAIL_MAILER=log
-      MAIL_HOST=127.0.0.1
-      MAIL_PORT=2525
-      MAIL_USERNAME=null
-      MAIL_PASSWORD=null
-      MAIL_ENCRYPTION=null
-      MAIL_FROM_ADDRESS="hello@example.com"
-      MAIL_FROM_NAME="${APP_NAME}"
-
-      AWS_ACCESS_KEY_ID=
-      AWS_SECRET_ACCESS_KEY=
-      AWS_DEFAULT_REGION=us-east-1
-      AWS_BUCKET=
-      AWS_USE_PATH_STYLE_ENDPOINT=false
-
-      VITE_APP_NAME="${APP_NAME}"
+      # --- 以下省略 ---
       ```
-
-3. `Add secret`をクリックして登録
 
 ### 課題の合格基準
 
@@ -175,7 +119,7 @@ LaravelをGitHub上で動かすためには、`.env`ファイルが必要です�
 
 ### 合格確認方法
 
-1. 本課題の[課題ページ](https://classroom.github.com/a/E-VnbwaY)に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/oXyhjSJ_)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 3. **一番上**の行に、緑色のチェックが入っていればOK<br>
