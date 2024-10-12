@@ -20,7 +20,7 @@
 
 ## 事前準備
 
-前回の[ビュー、ルーティング](../shop_index/README.md)でcloneしたコード(`21-first-laravel`)をそのまま利用してください。
+前回の[ビュー、ルーティング](../shop_index/README.md)でcloneしたコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
 
 ## 本章の狙い
 
