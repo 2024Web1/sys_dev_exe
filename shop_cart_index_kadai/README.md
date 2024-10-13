@@ -1,6 +1,6 @@
-# CRUD機能を作ろう！(Part1)
+# カート内の商品画面
 
-- [CRUD機能を作ろう！(Part1)](#crud機能を作ろうpart1)
+- [カート内の商品画面](#カート内の商品画面)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
   - [データベース環境構築](#データベース環境構築)
@@ -20,7 +20,37 @@
 
 ## 事前準備
 
-前回の[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)で使用したコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
+1. [こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneする
+2. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
+3. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
+4. `composer create-project laravel/laravel .` を実行し、Laravel環境を構築する
+5. 過去に作成した以下のコードを、上記「1.」でcloneしたソースコードと同じ場所に上書きする
+   
+    ```text
+    app
+    ├── Http
+    │   └── Controllers
+    │       └── ItemController.php
+    ├── Models
+    │   └── Item.php
+    database
+    ├── migrations
+    │   └── 20xx_xx_xx_xxxxxx_create_items_table.php
+    ├── seeders
+    │   └── ItemTableSeeder.php
+    │
+    途中省略
+    │
+    resources
+    ├── views
+    │   ├── item
+    │   │   ├── index.blade.php
+    │   │   └── show.blade.php
+    │   └── index.blade.php
+    routes
+    ├── web.php
+    .env
+    ```
 
 ## はじめに
 
