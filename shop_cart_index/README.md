@@ -1,17 +1,15 @@
-# CRUD機能を作ろう！(Part1)
+# CRUD機能を作ろう！(Create、Read編)
 
-- [CRUD機能を作ろう！(Part1)](#crud機能を作ろうpart1)
+- [CRUD機能を作ろう！(Create、Read編)](#crud機能を作ろうcreateread編)
   - [事前準備](#事前準備)
-  - [はじめに](#はじめに)
+  - [本章の狙い](#本章の狙い)
+  - [CRUDとは](#crudとは)
   - [データベース環境構築](#データベース環境構築)
-  - [マイグレーション](#マイグレーション)
-  - [シーダー](#シーダー)
-  - [phpMyAdminでのデータ確認](#phpmyadminでのデータ確認)
+    - [マイグレーション](#マイグレーション)
   - [モデルの作成](#モデルの作成)
   - [コントローラの作成](#コントローラの作成)
-  - [ルーティングと商品詳細画面の修正](#ルーティングと商品詳細画面の修正)
-    - [ルーティングの修正](#ルーティングの修正)
-    - [商品詳細画面の修正](#商品詳細画面の修正)
+  - [ルーティングの修正](#ルーティングの修正)
+  - [商品追加フォームの作成](#商品追加フォームの作成)
   - [CartControllerのindexメソッドの作成](#cartcontrollerのindexメソッドの作成)
   - [Cartモデルのitemメソッドの作成](#cartモデルのitemメソッドの作成)
   - [カート内の商品画面の作成](#カート内の商品画面の作成)
@@ -22,17 +20,34 @@
 
 前回の[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)で使用したコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
 
-## はじめに
+## 本章の狙い
 
-本章では、カート内の商品画面を通じて、Laravelのモデル、コントローラ、ビュー、ルーティングの復習を行います。
+- LaravelでCRUD機能を実装する方法を学ぶ
+- ルーティングの可読性を実感する
+
+## CRUDとは
+
+まず、CRUDについておさらいしましょう。
+Laravelのみならず他の言語でも多用される言葉ですので、ここでしっかりとおさえておいてください。
+
+CRUDとは、データベース操作の基本的な機能の頭文字を取ったものです。
+具体的には、以下の4つの操作を指します。
+
+- Create（作成）: SQLのINSERT文に相当
+- Read（読み取り）: SQLのSELECT文に相当
+- Update（更新）: SQLのUPDATE文に相当
+- Delete（削除）: SQLのDELETE文に相当
+
+本章では、CRUDのうち、CreateとReadの機能を実装します。
 
 ## データベース環境構築
 
-新しくソースコードをcloneしたので、再度データベース環境構築をする必要があります。
 今回は、itemsテーブルに加え、カート内の商品を管理するためのcartテーブルを作成します。
 なお、.envファイルは既に編集済みのものを上書きしているので、再度編集する必要はありません。
 
-## マイグレーション
+### マイグレーション
+
+---
 
 今回は、cartテーブルを作成するためのマイグレーションファイルを追加し、コマンドを実行してテーブルを作成します。
 なお、cartテーブルの構造は前期同様以下の通りです。
@@ -45,9 +60,10 @@
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 3. 以下のコマンドを実行して、cartテーブル用のマイグレーションファイルを作成する
+   - 以下のコマンドは、[モデル、コントローラ](../shop_item_index/README.md)の最後に説明した、マイグレーション、シーダー、モデル、コントローラの作成を一括で行うコマンド
 
 ```bash
-php artisan make:migration create_cart_table
+php artisan make:model Cart -msc
 ```
 
 4. `database/migrations/20xx_xx_xx_xxxxxx_create_cart_table.php` が作成されていることを確認する
@@ -83,6 +99,7 @@ php artisan make:migration create_cart_table
     ここでは、`items`テーブルの`ident`カラムを参照しています。
     `onDelete('cascade')`は、参照先のレコードが削除された際に、`cart`テーブルのレコードも削除されるように設定しています。
 
+    **【補足(外部キー制約について)】**
     そもそも外部キー制約とはなんでしょうか？
     外部キー制約とは、テーブル間の関連性を強制する制約のことです。
     例えば、`cart`テーブルの`ident`カラムに外部キー制約を設定することで、`cart`テーブルの`ident`カラムには、`items`テーブルの`ident`カラムに存在する値のみが入るように制約を設けることができます。
@@ -93,53 +110,17 @@ php artisan make:migration create_cart_table
     php artisan migrate
     ```
 
-これで、itemsテーブルと新たにcartテーブルが作成されました。
-
-## シーダー
-
-シーダーは新たに作成するファイルはないので、前回と同じItemTableSeeder.phpを実行するのみです。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、シーダーを実行する
-
-    ```bash
-    php artisan db:seed --class=ItemTableSeeder
-    ```
-
-以上で、itemsテーブルにデータが挿入されました。
-
-## phpMyAdminでのデータ確認
-
-itemsテーブルとcartテーブルが作成されたか、phpMyAdminを使って確認してみましょう。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ポートをクリックする
-3. 地球儀マークをクリックする<br>
-   ![](./images/port_phpmyadmin_click.png)
-4. 以下の手順により、itemsテーブルにデータが挿入されているか確認する
-   ![](./images/phpmyadmin_1.png)
-   ![](./images/phpmyadmin_2.png)
-
-   ※画像を見ると、itemsテーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
-   database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルが用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
-
-以上で、データベースの準備が整いました。
+これで、cartテーブルが作成されました。
 
 ## モデルの作成
 
-前回同様コマンドを使ってモデルを作成します。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、Cartモデルを作成する
+先ほどの[マイグレーション](#マイグレーション)の以下のコマンドで作成した`Cart`モデルを使って、`cart`テーブルとのやり取りを行います。
 
 ```bash
-php artisan make:model Cart
+php artisan make:model Cart -msc
 ```
 
-4. app/Models/Cart.php が作成されていることを確認する
-5. 以下のようにCart.phpを修正する
+**app/Models/Cart.php**
 
     ```php
     <?php
@@ -163,26 +144,30 @@ php artisan make:model Cart
 
     `protected $table = 'cart';`: <br>
     `protected $table`プロパティは、モデルが対応するテーブル名を指定するプロパティです。
-    Laravelでは、基本的には、モデル名は単数形、そのモデルに対応するテーブル名は複数形でなければエラーが発生します。
-    例えば、`Item`モデルに対応するテーブルは`items`テーブルであるため、`Item`モデルの`$table`プロパティには自動的に`items`が指定され、これにより`Item`モデルによるデータベース操作が可能になります。
 
-    しかし今回の場合は、`Cart`モデルに対応するテーブルは`cart`テーブルであるため、明示的に`$table`プロパティには`cart`を指定しています。
+    Laravelでは、基本的には、**モデル名は単数形**、そのモデルに対応する**テーブル名は複数形**でなければ追加の設定を記述しなければエラーとなります。
+    以前作成した、`Item`モデルに対応するテーブルが`items`テーブルで、上記ルールに則っていたため、エラーなくデータベース操作が可能でした。
+
+    しかし今回の場合は、`Cart`モデルに対応するテーブルは`cart`テーブルであり、テーブル名が**単数系**です。
+    この場合、明示的に`$table`プロパティに`cart`を指定しています。
     これにより、今までどおりコントローラで`Cart`モデルを使ってデータベースとのやり取りを行うことができます。
+
+    `protected $primaryKey = 'ident';`: <br>
+
+    `protected $primaryKey`プロパティは、モデルの主キーを指定するプロパティです。
+    ここでは、`cart`テーブルの主キーが`ident`カラムであるため、`$primaryKey`プロパティに`ident`を指定しています。
 
 ## コントローラの作成
 
-コマンドを使ってコントローラを作成します。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、CartControllerを作成する
+先ほどの[マイグレーション](#マイグレーション)の以下のコマンドで作成した`CartController`を使って、コントローラを作成します。
 
 ```bash
-php artisan make:controller CartController
+php artisan make:model Cart -msc
 ```
 
-4. app/Http/Controllers/CartController.php が作成されていることを確認する
-5. 作成されたCartController.phpをVSCodeで開き、まずはcartテーブルに必要なデータを登録するstoreメソッドを追加する
+まずはcartテーブルに必要なデータを登録する`store`メソッドを追加する
+
+**app/Http/Controllers/CartController.php**
 
     ```php
     <?php
@@ -217,7 +202,7 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 `$cart = Cart::create`: <br>
 `Cart::create`メソッドは、`Cart`モデルを使って、データベースに新しいレコードを登録するメソッドです。
 `create`メソッドの引数には、登録するデータを連想配列で指定します。
-ここでは、`ident`カラムに`$request->ident`の値、`quantity`カラムに`$request->quantity`の値を登錺します。
+ここでは、`ident`カラムに`$request->ident`の値、`quantity`カラムに`$request->quantity`の値を登録しています。
 
 `return redirect()->route('cart.index');`: <br>
 `redirect`関数は、指定したURLにリダイレクトする関数です。
@@ -225,15 +210,13 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 ここでは、`cart.index`という名前のルートにリダイレクトしています。
 ちなみに、`cart.index`という名前のルートはまだ存在していませんが、後ほど作成するindexメソッドに対応するルートです。
 
-## ルーティングと商品詳細画面の修正
+## ルーティングの修正
 
-### ルーティングの修正
+`CartController`の`store`メソッドにアクセスするためのルーティングを追加します。
 
-CartControllerの`store`メソッドを定義しましたが、そもそも商品詳細画面から`store`メソッドにリクエストを送信するためのルーティングが設定されていません。
+また、`store`メソッドでカートに商品を追加した後、併せてカートの一覧を表示するための`index`メソッドも作成します。
+そのため、`index`メソッド用のルーティングを追加する必要があります。
 
-また、`store`メソッドでカートに商品を追加した後、合わせてカートの一覧を表示するための`index`メソッドも作成するため、そのルーティングも追加します。
-
-そのため、ルーティングを追加する必要があります。
 **routes/web.php**を以下のように修正してください。
 
 ```php
@@ -243,17 +226,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CartController; // 追加
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::get('/', function () {
-    return view('index');
-})->name('index');
-
-//Route::post('item', [ItemController::class, 'index'])->name('item.index');
-Route::match(['get', 'post'], 'item/{genre?}', [ItemController::class, 'index'])->name('item.index');
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
+// 途中省略
 
 // --- 以下を追加 ---
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
@@ -273,60 +246,36 @@ Route::post('cart', [CartController::class, 'store'])->name('cart.store');
 `Route::post('cart', [CartController::class, 'store'])->name('cart.store');`: <br>
 `cart`というURLにPOSTリクエストが送信された場合、`CartController`クラスの`store`メソッドが呼び出されるように設定しています。
 
-### 商品詳細画面の修正
+## 商品追加フォームの作成
 
-商品詳細画面のフォームの`action`属性を`route`関数を使って`cart.store`ルートに変更してください。
+次に、カートに商品を追加するためのフォームを作成します。
 
-`resources/views/item/show.blade.php`を以下のように修正してください。
+1. `resources/views`ディレクトリに`cart`ディレクトリを作成する
+2. `cart`ディレクトリに`create.blade.php`を作成し、以下のように記述する
 
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>商品詳細</h3>
-<!-- action属性をroute関数を使ってcart.storeルートに変更 -->
-<form method="POST" action="{{ route('cart.store') }}">
-    @csrf
-    <input type="hidden" name="ident" value="{{ $item->ident }}">
-    <table>
-        <tr><th>商品名</th>
-        <td>{{ $item->name }}</td></tr>
-        <tr><td colspan="2"><div class="td_center">
-        <img class="detail_img" src="{{ asset('images/'.$item->image )}}"></div></td></tr>
-        <tr><th>メーカー・著者<br>アーティスト</th>
-        <td>{{ $item->maker }}</td></tr>
-        <tr><th>価 格</th>
-        <td>&yen;{{  number_format( $item->price) }}</td></tr>
-        <tr><th>注文数</th>
-        <td><select name="quantity">
-            @for ( $i=1;  $i<=10;  $i++ )
-                <option value="{{ $i }}"> {{ $i }} </option>
-            @endfor
-        </select></td></tr>
-        <tr><th colspan="2"><input type="submit" value="カートに入れる"></th></tr>
-    </table>
-</form>
-<br>
-<a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>
-</body>
-</html>
-```
-
-**【解説】**
-
-`<form method="POST" action="{{ route('cart.store') }}">`: <br>
-`route`関数を使って、`cart.store`ルートにリクエストを送信するようにしています。
+    ```php
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サンプル</title>
+    </head>
+    <body>
+        <h3>商品をカートに追加</h3>
+        <form action="{{ route('cart.store') }}" method="POST">
+        @csrf
+        <input type="number" name="ident">
+        <input type="number" name="quantity">
+        <input type="submit" value="カートに追加">
+        </form>
+    </body>
+    </html>
+    ```
 
 ## CartControllerのindexメソッドの作成
 
 次に、カート内の商品を一覧表示するための`index`メソッドを作成します。
-
 作成したCartController.phpを開き、以下のように`index`メソッドを追加してください
 
 **app/Http/Controllers/CartController.php**
@@ -343,7 +292,7 @@ class CartController extends Controller
     // --- 以下を追加 ---
     public function index()
     {
-        $carts = Cart::with('item')->get();
+        $carts = Cart::all();
         return view('cart.index', ['carts' => $carts]);
     }
     // --- ここまで ---

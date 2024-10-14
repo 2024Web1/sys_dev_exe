@@ -178,7 +178,7 @@ php artisan make:migration create_items_table
 
     `use...`: <br>
     useとは、他のクラスを読み込むためのキーワードです。
-    pythonでいう`import`に近い役割を果たします。
+    PHPでいうところの`require_once`のようなものです。
 
     `public function up(): void {Schema::create('items', function (Blueprint $table) {`: <br>
     マイグレーションファイル作成時にデフォルトで記述されているコードです。
