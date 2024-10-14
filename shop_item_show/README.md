@@ -40,7 +40,7 @@ use App\Http\Controllers\ItemController;
 // 途中省略
 
 
-Route::get('item', [ItemController::class, 'index']);
+Route::get('item', [ItemController::class, 'index'])->name('item.index');
 // --- 以下を追加 ---  
 Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
 ```

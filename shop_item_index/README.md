@@ -308,6 +308,14 @@ php artisan make:seeder ItemTableSeeder
             // --- 以下を追加 ---
             $this->call(ItemTableSeeder::class);
             // --- ここまで ---
+
+            // デフォルトはコメントアウト
+            // User::factory(10)->create();
+
+            // User::factory()->create([
+            //     'name' => 'Test User',
+            //     'email' => 'test@example.com',
+            // ]);
         }
     }
     ```
@@ -488,7 +496,7 @@ use App\Http\Controllers\ItemController; // 追加
 // 途中省略
 
 // 以下を追加
-Route::get('item', [ItemController::class, 'index']);
+Route::get('item', [ItemController::class, 'index'])->name('item.index');
 ```
 
 **【解説】**
@@ -560,10 +568,17 @@ Route::get('item', [ItemController::class, 'index']);
 {% raw %}
 `{{ $item->name }}`、`{{  number_format( $item->price) }}`: <br>
 Laravelには、ビューで変数を表示したり、関数を呼び出したりする`{{  }}`という構文があります。
-{% endraw %}
+
 今回は、変数を表示する際に使用しています。
-なお、この構文はセキュリティ対策のため、エスケープ処理が自動で行われます。
 `$item->name`、`$item->price`は、商品データの各カラムの値を取得しています。
+
+**【補足({{  }}のセキュリティについて)】**
+
+Bladeテンプレートでは、`{{  }}`で囲まれた部分にPHPのコードを埋め込むことができます。
+実は、`{{  }}`で囲まれた部分は、エスケープされるため、XSS(クロスサイトスクリプティング)攻撃を防ぐことができます。
+
+PHPでは、エスケープ処理を実装するには、`htmlspecialchars`関数を使っていましたが、、Bladeテンプレートでは、`{{  }}`で囲むだけでエスケープ処理が自動で行われるため、セキュリティ対策が簡単に行えます。
+{% endraw %}
 
 ## 動作確認
 
