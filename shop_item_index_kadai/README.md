@@ -17,7 +17,7 @@
 
 ## 事前準備
 
-[こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
+[こちらのページ](https://classroom.github.com/a/1GroHwTh)から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
 
 ## 本章の狙い
 
@@ -266,7 +266,7 @@ Laravelでは、ビューでcssファイルや画像ファイルを読み込む�
 
 ---
 
-1. 本課題の[課題ページ]()に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/1GroHwTh)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 1. **一番上**の行に、緑色のチェックが入っていればOK<br>
