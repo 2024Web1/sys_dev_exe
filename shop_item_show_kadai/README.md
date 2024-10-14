@@ -95,7 +95,7 @@
 
 ## ③コントローラの修正
 
-次に、商品詳細画面のビューを表示するために、ItemController(`app/Http/Controllers/ItemController.php`)を修正します。
+次に、商品詳細画面のビューを表示するために、`ItemController`(`app/Http/Controllers/ItemController.php`)を修正します。
 以下の観点から修正してください。
 
 - `show`メソッドの追加(`show`メソッドの仕様は以下のとおり)

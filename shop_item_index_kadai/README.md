@@ -69,9 +69,9 @@
 前回の[【課題】ジャンル選択画面の作成](../shop_index_kadai/README.md)では送信ボタンを押した後のルーティングが設定されていませんでした。
 まずは、送信ボタンを押した後のルーティングを設定しましょう。
 
-本課題でも、[モデル、コントローラ](../shop_item_index/README.md)の章同様、以降でItemControllerを作成し,商品の一覧を表示するための`index`メソッドを作成します。
+本課題でも、[モデル、コントローラ](../shop_item_index/README.md)の章同様、以降で`ItemController`を作成し,商品の一覧を表示するための`index`メソッドを作成します。
 
-ですので、まずはジャンル選択画面の送信ボタンを押した場合、ItemControllerの`index`メソッドを呼び出すようにルーティングを設定しましょう。
+ですので、まずはジャンル選択画面の送信ボタンを押した場合、`ItemController`の`index`メソッドを呼び出すようにルーティングを設定しましょう。
 
 `routes/web.php`を以下のように修正してください。
 ※[モデル、コントローラ](../shop_item_index/README.md)の章で解説していないものありますので、解説を読みながら進めてください。
@@ -95,8 +95,8 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 
 `Route::post('/item', [ItemController::class, 'index'])->name('item.index');`:<br>
 
-`Route::post`メソッドは、POSTリクエストを受け取るルーティングを設定します。
-ジャンル別選択画面の送信ボタンを押すと、POSTリクエストが送信されるため、POSTリクエストを受け取るルーティングを設定します。
+`Route::post`メソッドは、`POST`リクエストを受け取るルーティングを設定します。
+ジャンル別選択画面の送信ボタンを押すと、`POST`リクエストが送信されるため、`POST`リクエストを受け取るルーティングを設定します。
 
 第1引数には、URLを指定し、`/item`となっています。
 第2引数には、コントローラを指定します。
@@ -141,7 +141,7 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 
 これにより、直接的にURLを記述せずとも、名前をつけることでより感覚的にルーティングを指定することができます。
 
-これで、ジャンル選択画面の修正が完了し、送信ボタンを押すと、ItemControllerの`index`メソッドが呼び出されるようになりました。
+これで、ジャンル選択画面の修正が完了し、送信ボタンを押すと、`ItemController`の`index`メソッドが呼び出されるようになりました。
 
 ## ④モデルの作成
 
@@ -150,8 +150,8 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 
 ## ⑤コントローラについて
 
-1. [モデル、コントローラ](../shop_item_index/README.md)の章を参考に、ItemControllerを作成する
-2. 以下のように、ItemControllerの`index`メソッドを作成する
+1. [モデル、コントローラ](../shop_item_index/README.md)の章を参考に、`ItemController`を作成する
+2. 以下のように、`ItemController`の`index`メソッドを作成する
 
     ```php
     <?php
@@ -183,11 +183,11 @@ Route::post('/item', [ItemController::class, 'index'])->name('item.index');
 
 **【補足】**
 
-`Request $request`と記述することにより、newを使わずにクラスから`$request`オブジェクトを使うことができます。
+`Request $request`と記述することにより、`new`を使わずにクラスから`$request`オブジェクトを使うことができます。
 
 PHPでは、メソッド内に`$request = new Request();`と記述していたのが、Laravelでは、メソッドの**引数に**`Request $request`と記述するだけで、`$request`オブジェクトを使うことができます。
 
-`$request`オブジェクトにより、リクエスト時にGET・POSTメソッドを使って送られたデータを取得することができ、非常に便利です。
+`$request`オブジェクトにより、リクエスト時に`GET`・`POST`リクエストを使って送られたデータを取得することができ、非常に便利です。
 
 以降の章でも出てきますが、このようにメソッドの引数にクラスとそのオブジェクトを記述する方法は、**依存性の注入**と呼ばれ、Laravelの特徴の1つです。
 メリットとしては、コードの見通しが良くなる、テストしやすくなる、再利用性が高まるなどがあります。
@@ -203,7 +203,7 @@ PHPでは、メソッド内に`$request = new Request();`と記述していた�
 
 ## ⑥ジャンル別商品一覧画面の作成
 
-作成する場所ですが、ジャンル別商品一覧画面は、アプリケーション「ミニショップ」の**商品機能**に関するビューになるため、resources/views/item ディレクトリに配置します。
+作成する場所ですが、ジャンル別商品一覧画面は、アプリケーション「ミニショップ」の**商品機能**に関するビューになるため、`resources/views/item` ディレクトリに配置します。
 以下の手順で作成してください。
 
 {% raw %}

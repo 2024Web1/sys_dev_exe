@@ -33,7 +33,7 @@
 本章の前半部ではデータベースとのやり取りを担当する**モデル**について学びますが、その前にデータベース環境を構築する必要があります。
 Laravelでは、
 
-- データベースの接続情報を記述するための**.envファイル**
+- データベースの接続情報を記述するための **.envファイル**
 - データベースのテーブル構造を定義するための**マイグレーション**
 - データベースに初期データを挿入するための**シーダー**
   
@@ -43,13 +43,13 @@ Laravelでは、
 
 ---
 
-Laravelでは、データベースの接続情報を.envファイルに記述します。
-前期のPHPでは、PDOクラスを使ってデータベースに接続する際、接続情報を直接記述していましたね。
+Laravelでは、データベースの接続情報を`.env`ファイルに記述します。
+前期のPHPでは、`PDO`クラスを使ってデータベースに接続する際、接続情報を直接記述していましたね。
 
-Laravelでは.envファイルに記述することで、より安全にデータベースに接続することができます。
+Laravelでは`.env`ファイルに記述することで、より安全にデータベースに接続することができます。
 ここを正しく設定しない限り、この後出てくるテーブルを作成するためのマイグレーション、シーダーの実行ができません。
 
-では、今回のDocker環境に合わせて.envファイルを編集しましょう。
+では、今回のDocker環境に合わせて`.env`ファイルを編集しましょう。
 
 ```bash
 APP_NAME=Laravel
@@ -92,16 +92,16 @@ MySQLのデフォルトポート番号は`3306`です。
 
 `DB_DATABASE=SAMPLE`、`DB_USERNAME=sampleuser`、`DB_PASSWORD=samplepass`:<br>
 データベース名、データベースに接続するためのユーザー名、パスワードを指定します。
-これらの情報は、Docker環境の`docker-compose.yml`ファイルで設定したenv.txtファイルの内容に合わせて設定します。
+これらの情報は、Docker環境の`docker-compose.yml`ファイルで設定した`env.txt`ファイルの内容に合わせて設定します。
 
-データベースの接続情報を.envファイルに記述したら、次にマイグレーションを実行し、テーブル定義を行います。
-ただし、マイグレーションを実行する前に、定義する商品テーブル「items」の構造を確認しておきましょう。
+データベースの接続情報を`.env`ファイルに記述したら、次にマイグレーションを実行し、テーブル定義を行います。
+ただし、マイグレーションを実行する前に、定義する商品テーブル`items`の構造を確認しておきましょう。
 
 ### 商品テーブル「items」
 
 ---
 
-前期同様、ミニショップの商品を管理する商品テーブル「items」は以下のような構造になっています。
+前期同様、ミニショップの商品を管理する商品テーブル`items`は以下のような構造になっています。
 
 | カラム名 | データ型 | 制約 | 備考 |
 | - | - | - | - |
@@ -119,14 +119,14 @@ MySQLのデフォルトポート番号は`3306`です。
 マイグレーションとは、Laravelにおいてデータベースのテーブル構造を定義するための仕組みです。
 マイグレーションを使うことで、データベースのテーブル構造をPHPのコードで定義し、データベースに反映させることができます。
 
-では、マイグレーションを使って、データベースに商品テーブル「items」を作成しましょう。
+では、マイグレーションを使って、データベースに`items`テーブルを作成しましょう。
 マイグレーションを使うには、まずマイグレーションファイルを作成し、そのファイルを編集してテーブルの構造を定義します。
 
 以下の手順でまずはマイグレーションファイルを作成しましょう。
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、itemsテーブル用のマイグレーションファイルを作成する
+3. 以下のコマンドを実行して、`items`テーブル用のマイグレーションファイルを作成する
 
 ```bash
 php artisan make:migration create_items_table
@@ -177,7 +177,7 @@ php artisan make:migration create_items_table
     **【解説】**
 
     `use...`: <br>
-    useとは、他のクラスを読み込むためのキーワードです。
+    `use`とは、他のクラスを読み込むためのキーワードです。
     PHPでいうところの`require_once`のようなものです。
 
     `public function up(): void {Schema::create('items', function (Blueprint $table) {`: <br>
@@ -207,8 +207,8 @@ php artisan make:migration create_items_table
     php artisan migrate
     ```
 
-これで、itemsテーブルが作成されました。
-引き続き、itemsテーブルにデータを挿入するためのシーダーを作成します。
+これで、`items`テーブルが作成されました。
+引き続き、`items`テーブルにデータを挿入するためのシーダーを作成します。
 
 **【補足】**<br>
 Laravelでテーブル定義をする際、以下のカラムがデフォルトで定義されています。
@@ -227,7 +227,7 @@ Laravelの前提としては、カラムとしてこれらを定義すること�
 シーダーとは、データベースに初期データを挿入するための仕組みです。
 シーダーを使うことで、データベースのテストデータや初期データを簡単に挿入することができます。
 
-では、シーダーを使って、itemsテーブルにデータを挿入しましょう。
+では、シーダーを使って、`items`テーブルにデータを挿入しましょう。
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
@@ -282,12 +282,12 @@ php artisan make:seeder ItemTableSeeder
     **【解説】**
     
     `namespace...`: <br>
-    namespaceとは、クラスをグループ化するためのキーワードです。
+    `namespace`とは、クラスをグループ化するためのキーワードです。
     ここでは、`Database\Seeders`という名前空間に`ItemTableSeeder`クラスを定義しています。
     名前空間を使うことで、同じクラス名でも異なる名前空間に属するクラスを区別することができます。
 
     `DB::table('items')->insert`: <br>
-    連想配列を使って、itemsテーブルにデータを挿入します。
+    連想配列を使って、`items`テーブルにデータを挿入します。
 
 6. `database/seeders/DatabaseSeeder.php` を以下のように修正する
 
@@ -324,23 +324,23 @@ php artisan make:seeder ItemTableSeeder
     php artisan db:seed
     ```
 
-以上で、itemsテーブルにデータが挿入されました。
+以上で、`items`テーブルにデータが挿入されました。
 
 ## phpMyAdminでのデータ確認
 
-「.env ファイルの編集」、「マイグレーション」、「シーダー」の手順を踏んだ後、phpMyAdminでデータが正しく挿入されたか確認しましょう。
+「`.env`ファイルの編集」、「マイグレーション」、「シーダー」の手順を踏んだ後、phpMyAdminでデータが正しく挿入されたか確認しましょう。
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ポートをクリックする
 3. 画面下部のポートから「phpmyadmin:80」の地球儀マークをクリックする<br>
    ![](./images/port_phpmyadmin_click.png)
-4. 以下の手順により、itemsテーブルにデータが挿入されているか確認する
+4. 以下の手順により、`items`テーブルにデータが挿入されているか確認する
    ![](./images/phpmyadmin_1.png)
    ![](./images/phpmyadmin_2.png)
    ![](./images/phpmyadmin_3.png)
 
     **【補足】**<br>
-    ※画像を見ると、itemsテーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
+    ※画像を見ると、`items`テーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
     database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルがデフォルトで用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
 
 以上で、データベースの準備が整いました。
@@ -385,10 +385,10 @@ php artisan make:model Item
 **【解説】**　<br>
 
 `protected $primaryKey = 'ident';`: <br>
-[マイグレーションの補足](#マイグレーション)で説明したように、itemsテーブルの主キーがデフォルトの`id`ではなく`ident`であるため、`$primaryKey`プロパティを使って、主キーが`ident`であることを指定しています。
+[マイグレーションの補足](#マイグレーション)で説明したように、`items`テーブルの主キーがデフォルトの`id`ではなく`ident`であるため、`$primaryKey`プロパティを使って、主キーが`ident`であることを指定しています。
 この指定がなければ、モデルを使用してデータを取得する際、`id`を主キーとして扱おうとしてしまいエラーが発生します。
 
-上記のように、`php artisan make:model Item`コマンドを実行し、Itemモデルを作成することで、itemsテーブルとのやり取りを行うための準備ができました。
+上記のように、`php artisan make:model Item`コマンドを実行し、Itemモデルを作成することで、`items`テーブルとのやり取りを行うための準備ができました。
 
 **【補足】**　<br>
 Laravelにおいて、「モデル名」と「テーブル名」には命名規則があります。
@@ -399,7 +399,7 @@ Laravelにおいて、「モデル名」と「テーブル名」には命名規�
 とはいうものの、この命名規則に則っていないコードも出てきたりするので、そう言った場合の対処法もあるのでご安心を。
 とりあえずはこの命名規則に則っていない場合は、なんらかの対処が必要だと頭の片隅にでも置いておいてください。
 
-では、次にコントローラを使って、itemsテーブルからデータを取得し、ビューに渡す処理を行います。
+では、次にコントローラを使って、`items`テーブルからデータを取得し、ビューに渡す処理を行います。
 
 ## コントローラについて
 
@@ -418,9 +418,9 @@ MVCモデルにおいて、コントローラは、クライアントからの�
 php artisan make:controller ItemController
 ```
 
-4. app/Http/Controllers/ItemController.php が作成されていることを確認する
+4. `app/Http/Controllers/ItemController.php` が作成されていることを確認する
 
-5. 作成されたItemController.phpをVSCodeで開き、以下のコードを追加する
+5. 作成された`ItemController.php`をVSCodeで開き、以下のコードを追加する
 
     ```php
     <?php
@@ -444,14 +444,14 @@ php artisan make:controller ItemController
 **【解説】**
 
 `use App\Models\Item`: 先ほど[モデルについて]で作成した、`Item`モデルを使うために記述しています。
-前期で習った`require_once`のようなもので、itemsテーブルとのやり取りを行うために、`Item`モデルを使いたいために記述しています。
+前期で習った`require_once`のようなもので、`items`テーブルとのやり取りを行うために、`Item`モデルを使いたいために記述しています。
 
 `public function index`: <br>
 Laravelでは、コントローラに記述する`index` メソッドは、「一覧表示画面を表示するためのメソッド名」として一般的に使われます。
 
 `$items = Item::all();`: <br>
-`Item::all()`は、`Item`モデルを使って、itemsテーブルの全データを取得するメソッドです。
-`$items`には、itemsテーブルの全データが格納されます。
+`Item::all()`は、`Item`モデルを使って、`items`テーブルの全データを取得するメソッドです。
+`$items`には、`items`テーブルの全データが格納されます。
 
 `return view('item.index', compact('items'));`: <br>
 
@@ -479,7 +479,7 @@ Laravelでは、コントローラに記述する`index` メソッドは、「�
 その役目を担うのがルーティングでしたね。
 では、`routes/web.php`ファイルにルーティングを設定しましょう。
 
-今回は、ItemControllerの`index`メソッドを呼び出すためのルーティングを設定します。
+今回は、`ItemController`の`index`メソッドを呼び出すためのルーティングを設定します。
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -497,7 +497,7 @@ Route::get('item', [ItemController::class, 'index']);
 `ItemController`クラスを使用するために、`ItemController`クラスを読み込んでいます。
 
 `Route::get('item', [ItemController::class, 'index']);`: <br>
-`Route::get`メソッドは、GETリクエストを受け取った際に、指定したコントローラの指定したメソッドを呼び出すためのルーティングを設定します。
+`Route::get`メソッドは、`GET`リクエストを受け取った際に、指定したコントローラの指定したメソッドを呼び出すためのルーティングを設定します。
 第1引数には、URLを指定します。ここでは、`item`というURLにリクエストが送信された際に、`ItemController`クラスの`index`メソッドを呼び出すように設定しています。
 
 `[ItemController::class, 'index']`は、`ItemController`クラスの`index`メソッドを呼び出すことを示しています。
@@ -515,7 +515,7 @@ Route::get('item', [ItemController::class, 'index']);
 次に、商品データを表示するためのビューを作成します。
 
 まず、`resources/views`ディレクトリに`item`ディレクトリを作成し、その中に`index.blade.php`ファイルを作成します。
-※先ほどのItemControllerの`index`メソッドで`return view('item.index', compact('items'));`としているため、`item`ディレクトリに`index.blade.php`ファイルを作成する必要があります。
+※先ほどの`ItemController`の`index`メソッドで`return view('item.index', compact('items'));`としているため、`item`ディレクトリに`index.blade.php`ファイルを作成する必要があります。
 ※`item`ディレクトリ並びに`index.blade.php`ファイルは、コマンドではなく手動で作成してください。
 
 {% raw %}
@@ -549,7 +549,7 @@ Route::get('item', [ItemController::class, 'index']);
 **【解説】**
 
 `$items`: <br>
-`$items`は、ItemControllerのindexメソッドで取得した商品データが入っています。
+`$items`は、`ItemController`の`index`メソッドで取得した商品データが入っています。
 ルーティングで、`return view('item.index', ['items' => $items]);`として、`$items`をビューに渡しているため、ビュー内で`$items`を使うことができます。
 
 `@foreach( $items  as  $item )`: <br>
