@@ -1,6 +1,6 @@
-# カート内の商品画面
+# 【課題】カート内の商品画面の作成
 
-- [カート内の商品画面](#カート内の商品画面)
+- [【課題】カート内の商品画面の作成](#課題カート内の商品画面の作成)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
   - [データベース環境構築](#データベース環境構築)
@@ -33,22 +33,31 @@
     │       └── ItemController.php
     ├── Models
     │   └── Item.php
-    database
-    ├── migrations
-    │   └── 20xx_xx_xx_xxxxxx_create_items_table.php
-    ├── seeders
-    │   └── ItemTableSeeder.php
     │
     途中省略
     │
+    database
+    ├── migrations
+    │   └── 20XX_XX_XX_XXXXXX_create_items_table.php
+    ├── seeds
+    │   ├── DatabaseSeeder.php
+    │   └── ItemsTableSeeder.php
+    public
+    ├── css
+    │   └── minishop.css
+    ├── images
+    │   └── xxx.png(15個の画像ファイル)
+    │
     resources
     ├── views
-    │   ├── item
-    │   │   ├── index.blade.php
-    │   │   └── show.blade.php
+    │   ├── items
+    │   │   └── index.blade.php    
     │   └── index.blade.php
     routes
     ├── web.php
+    │
+    途中省略
+    │
     .env
     ```
 
