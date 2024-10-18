@@ -11,9 +11,10 @@
   - [⑤コントローラに`index`メソッドを作成](#コントローラにindexメソッドを作成)
   - [⑥ビュー(商品詳細画面)の修正](#ビュー商品詳細画面の修正)
   - [⑦ビュー(カート内の商品画面)の作成](#ビューカート内の商品画面の作成)
-  - [動作確認](#動作確認)
-  - [商品追加のバグ修正](#商品追加のバグ修正)
-  - [まとめ](#まとめ)
+  - [⑧動作確認](#動作確認)
+  - [課題の提出について](#課題の提出について)
+    - [課題の合格基準](#課題の合格基準)
+    - [合格確認方法](#合格確認方法)
 
 ## 事前準備
 
@@ -261,7 +262,7 @@
             </tr>
             @php
                 // 合計金額を計算(穴埋め)
-                $total += $cart->item->price * $cart->quantity;
+                $total += 
             @endphp
         @endforeach
         <tr>
@@ -290,173 +291,46 @@
 
  {% endrow %}
 
-## 動作確認
+## ⑧動作確認
 
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、画面下部のポートをクリックし、地球儀マークをクリックする<br>
-   ![](./images/port_click.png)
-3. ブラウザが立ち上がったら商品詳細画面に遷移し、「カートに入れる」ボタンをクリック
-4. 実は、現状のままだと以下のようなエラーが出る
-   ![](./images/error_fillable.png)<br><br>
+以下の3つの動作確認が確認できればOKです。
 
-   エラーメッセージは以下の通りです。
-    ```text
-    Add [ident] to fillable property to allow mass assignment on [App\Models\Cart].
-    ```
-    このエラーメッセージは、`Cart`モデルの`$fillable`プロパティに`ident`カラムを追加するように指示しています。(※`quantity`カラムも追加する必要があります)
-    これは、Laravelのセキュリティ機能の一つで、モデルの`$fillable`プロパティに指定されていないカラムに対して、`create`メソッドを使ってデータを登録しようとするとエラーが発生する仕組みです。
+1. 商品詳細画面からカートに商品を追加できる<br>
+   ![](./images/kakunin1.png)
+   ![](./images/kakunin2.png)
+2. 複数の商品がカートに追加できる<br>
+   ![](./images/kakunin3.png)
+3. 既にカートに入っている商品を追加すると、注文数が加算される<br>
+   ![](./images/kakunin4.png)
+   ![](./images/kakunin5.png)
+4. 注文数が10を超える場合は、10に設定される<br>
+   ![](./images/kakunin4.png)
+   ![](./images/kakunin6.png)
+5. phpMyAdminで`cart`テーブルを確認し、カートに追加した商品が登録されていることを確認する<br>
+   ![](./images/kakunin7.png)
 
-    このエラーを解消するために、`Cart`モデルの`$fillable`プロパティに`ident`と`quantity`カラムを追加します。
+## 課題の提出について
 
-5. `app/Models/Cart.php`を開き、以下のように`$fillable`プロパティを追加する
+提出した課題はGitHub上で自動採点されます。
+従来通りGitHub上にpushすれば完了で、自動採点がはじまります。
+ただし、**pushする前に以下の作業を事前に行わないと自動採点ができない**ので、以下の対応を忘れずに行ってください。
 
-    ```php
-    <?php
+### 課題の合格基準
 
-        namespace App\Models;
+---
 
-        use Illuminate\Database\Eloquent\Factories\HasFactory;
-        use Illuminate\Database\Eloquent\Model;
+以下を合格基準とします。
 
-        class Cart extends Model
-        {
-            use HasFactory;
-            protected $table = 'cart';
-            protected $primaryKey = 'ident';
-            protected $fillable = ['ident','quantity']; // 追加
-            
-            public function item()
-            {
-                return $this->belongsTo(Item::class, 'ident', 'ident');
-            }
-        }
-    ```
-    **【解説】**
+1. 商品詳細画面からカートに商品を追加できる
+2. 既にカートに入っている商品を追加すると、注文数が加算される
+3. 注文数が10を超える場合は、10に設定される
 
-    `protected $fillable = ['quantity'];`: <br>
-    `$fillable`プロパティは、モデルのデータを一括代入する際に、代入を許可するカラムを指定するプロパティです。
+### 合格確認方法
 
-6. 再度、商品詳細画面に遷移し、「カートに入れる」ボタンをクリック
-7. 実はまだ以下のようなエラーが出る
-   ![](./images/error_timestamps.png)<br><br>
+---
 
-   エラーメッセージは以下の通りです。
-    ```text
-    SQLSTATE[42S22]: Column not found: 1054 Unknown column 'updated_at' in 'field list' (Connection: mysql, SQL: insert into `cart` (`quantity`, `updated_at`, `created_at`) values (1, 2024-08-31 09:05:17, 2024-08-31 09:05:17))
-    ```
-    このエラーメッセージは、`cart`テーブルに`updated_at`カラムが存在しないため、エラーが発生していることを示しています。(※`created_at`カラムも存在しません)<br><br>
-    Laravelでは、デフォルトで`created_at`カラムと`updated_at`カラムが存在することを前提としているため、これらのカラムが存在しない場合は、`$timestamps`プロパティを`false`に設定する必要があります。<br><br>
-    このエラーを解消するために、`Cart`モデルの`$timestamps`プロパティを`false`に設定します。<br><br>
-
-    ```php
-    <?php
-
-        namespace App\Models;
-
-        use Illuminate\Database\Eloquent\Factories\HasFactory;
-        use Illuminate\Database\Eloquent\Model;
-
-        class Cart extends Model
-        {
-            use HasFactory;
-            protected $table = 'cart';
-            protected $primaryKey = 'ident';
-            protected $fillable = ['quantity'];
-            public $timestamps = false; // 追加
-            
-            public function item()
-            {
-                return $this->belongsTo(Item::class, 'ident', 'ident');
-            }
-        }
-    ```
-    **【解説】**
-
-    `public $timestamps = false;`: <br>
-    `$timestamps`プロパティは、モデルの`created_at`カラムと`updated_at`カラムを自動更新する機能を無効にするプロパティです。
-
-8. 再度、商品詳細画面に遷移し、「カートに入れる」ボタンをクリック
-9. カート内の商品が一覧表示されればOK
-    ![](./images/cart_index.png)
-
-## 商品追加のバグ修正
-
-前期授業と同様ですが、現在の実装では、カートに同じ商品を複数回追加することができません。追加しようとすると、以下のようなエラーが発生します。
-
-```text
-SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '6' for key 'cart.PRIMARY' (Connection: mysql, SQL: insert into `cart` (`ident`, `quantity`) values (6, 3))
-```
-
-このエラーは、`cart`テーブルの`ident`カラムに一意制約が設定されているため発生します。
-一意制約とは、テーブルのカラムに一意性を持たせる制約のことで、同じ値を複数回登録することを禁止します。
-
-このエラーを解消するために、カートに同じ商品を複数回追加した場合は、その商品の数量を更新するように修正します。
-なお、前期同様、更新する際の制約として、カートに追加する商品の数量の上限は10とします。
-
-それでは、修正を行いましょう。
-`CartController`の`store`メソッドを以下のように修正してください。
-
-**app/Http/Controllers/CartController.php**
-
-```php
-<?php
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Cart;
-
-class CartController extends Controller
-{
-    public function index()
-    {
-        $carts = Cart::with('item')->get();
-        return view('cart.index', ['carts' => $carts]);
-    }
-
-    public function store(Request $request)
-    {
-        // 既にカートに入っている商品かチェック
-        $cart = Cart::find($request->ident);
-        if ($cart) {
-            $new_quantity = $request->quantity + $cart->quantity;
-            if ($new_quantity > 10) {
-                $new_quantity = 10;
-            }
-            $cart->quantity = $new_quantity;
-            $cart->update(['quantity' => $new_quantity]);
-        } else {
-            Cart::create([
-                'ident' => $request->ident,
-                'quantity' => $request->quantity,
-            ]);
-        }
-        return redirect()->route('cart.index');
-    }
-}
-```
-
-**【解説】**
-
-`$cart = Cart::find($request->ident);`: <br>
-`Cart`モデルの`find`メソッドは、指定した主キーに対応するレコードを取得するメソッドです。
-ここでは、`$request->ident`の値に対応するレコードを取得しています。
-
-`if ($cart) { ... } else { ... }`: <br>
-`$cart`が取得できた場合は、カートに既に同じ商品が入っているということなので、その商品の数量を更新します。
-`$cart`が取得できなかった場合は、カートに新しく商品を追加します。
-
-`$new_quantity = $request->quantity + $cart->quantity;`: <br>
-`$new_quantity`には、既にカートに入っている商品の数量と、追加しようとする商品の数量を合計した値が代入されます。
-
-`$cart->update(['quantity' => $new_quantity]);`: <br>
-`update`メソッドは、レコードを更新するメソッドです。
-ここでは、`$cart`の`quantity`カラムの値を`$new_quantity`に更新しています。
-
-以上で、カートに同じ商品を複数回追加してもエラーが発生しないようになりました。
-
-## まとめ
-
-本章では、カートへの商品追加機能を実装しました。
-今回の実装で実感できたかと思いますが、Laravelをはじめとするフレームワークでは、あらかじめ決められるたルールがあり、それを守らなければエラーが発生します。
-
-ただし、そのルールを守ることで、セキュリティや保守性が向上し、開発効率が向上するというメリットがあります。これがいわゆる「標準化」と呼ばれるもので、大規模開発においてフレームワークが重宝される理由の一つです。
+1. 本課題の[課題ページ]()に再度アクセスする
+2. 画面上部にある`Actions`をクリックする<br>
+![](./images/acions.png)
+1. **一番上**の行に、緑色のチェックが入っていればOK<br>
+![](./images/pass.png)
