@@ -7,13 +7,11 @@
   - [①データベース環境構築](#データベース環境構築)
   - [②モデルの作成](#モデルの作成)
   - [③ルーティングの修正](#ルーティングの修正)
-  - [④コントローラの作成](#コントローラの作成)
-  - [ルーティングと商品詳細画面の修正](#ルーティングと商品詳細画面の修正)
-    - [ルーティングの修正](#ルーティングの修正-1)
-    - [商品詳細画面の修正](#商品詳細画面の修正)
-  - [CartControllerのindexメソッドの作成](#cartcontrollerのindexメソッドの作成)
-  - [Cartモデルのitemメソッドの作成](#cartモデルのitemメソッドの作成)
-  - [カート内の商品画面の作成](#カート内の商品画面の作成)
+  - [④コントローラに`store`メソッドを作成](#コントローラにstoreメソッドを作成)
+  - [⑤コントローラに`index`メソッドを作成](#コントローラにindexメソッドを作成)
+  - [⑥ビュー(商品詳細画面)の修正](#ビュー商品詳細画面の修正)
+  - [⑦ビュー(カート内の商品画面)の作成](#ビューカート内の商品画面の作成)
+  - [動作確認](#動作確認)
   - [商品追加のバグ修正](#商品追加のバグ修正)
   - [まとめ](#まとめ)
 
@@ -100,7 +98,7 @@
 1. `cart`というURLに`POST`リクエストが送信された場合、`CartController`クラスの`store`メソッドが呼び出されるように設定し、`cart.store`という名前を付ける
 2. `cart`というURLに`GET`リクエストが送信された場合、`CartController`クラスの`index`メソッドが呼び出されるように設定し、`cart.index`という名前を付ける
 
-## ④コントローラの作成
+## ④コントローラに`store`メソッドを作成
 
 1. コマンドを使ってコントローラ(`CartController`)を作成する
 2. 作成された`app/Http/Controllers/CartController.php`に`store`メソッドを記述する
@@ -108,286 +106,120 @@
     **【`store`メソッドによるカート追加処理の流れ】**
     1. 既にカートに入っている商品かチェック
     2. 同じ商品番号がカートに登録されている場合
-       - 登録されている注文数と追加する注文数を加算
+       - カートに登録されている注文数と追加する注文数を加算
        - 注文数が10を超える場合は、10に設定
        - 注文数を更新
     3. 同じ商品番号がカートに登録されていない場合
        - 商品番号と注文数を登録
+    4. カート内の商品一覧を表示する`index`メソッドにリダイレクト
 
     ただし、上記を実装するには、[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で学んだ知識だけでは不十分なので、以下の補足を参考にしてください。
 
-    1. 「既にカートに入っている商品かチェック」を実装するには...
+    - 「1. 既にカートに入っている商品かチェック」を実装するには...
        - この場合は主キー(商品番号)を使い、`cart`テーブルにレコードが存在するかどうかを確認する
        - 主キーでレコードを取得する方法として、[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章にて「ルートモデルバインディング」を説明したが、今回は`GET`リクエストではなく、`POST`リクエストで商品番号を取得するため、ルートモデルバインディングは使えない
        - そのため、`Cart`モデルの`find`メソッドを使って、商品番号を指定してレコードを取得する
 
         ```php
+        // $request->identでPOSTリクエストで渡ってきた商品番号を取得
         $cart = Cart::find($request->ident);
         ```
-       - 
-    2. 「同じ商品番号がカートに登録されている場合」を実装するには...-
+
+       - なお、前期と同様にレコードが取得できたかどうかは、`if($cart)`で判定できる
+  
+    - 「カートに登録されている注文数」や「追加する注文数」を取得するには...
+       - `find`で取得したレコードを格納した`$cart`を使い、`$cart->quantity`でカートに登録されている注文数を取得できる
+       - `Post`リクエストで渡ってきたデータである「追加する注文数」は、`$request->quantity`で取得できるが、今回は事前にバリデーションを実施しているため、`$validated['quantity']`で取得できる
+
+    - 「注文数を更新」を実装するには...
+       - `update`メソッドを使って、レコードを更新する
+       - ここでは、`quantity`カラムを更新するため、`$cart->update(['quantity' => $new_quantity]);`と記述する
+
+    - 「4. カート内の商品一覧を表示する`index`メソッドにリダイレクト」を実装するには...
+       - `return redirect()->route('cart.index');`を使って、`cart.index`ルートにリダイレクトする
+
+    これらを踏まえて、以下を穴埋めしながら`store`メソッドを作成してください。
 
     ```php
     <?php
     namespace App\Http\Controllers;
 
     use Illuminate\Http\Request;
-    // この行にCartモデルを使う宣言を追加
+    // Cartモデルを使う宣言を追加(穴埋め)
+    use                        
 
-    public function store(Request $request)
+    // 引数にRequestクラスを指定(穴埋め)
+    public function store(              )
     {
-        // 既にカートに入っている商品かチェック
-        $cart = Cart::find($request->ident);
-        if ($cart) {
-            $new_quantity = $request->quantity + $cart->quantity;
-            if ($new_quantity > 10) {
-                $new_quantity = 10;
+        // バリデーションを実施
+        $validated = $request->validate([
+            // itemsテーブルのidentカラムに対して、必須入力と整数型のバリデーションを設定
+            'ident' => 'required|exists:items,ident',
+            // cartテーブルのquantityカラムに対して、必須入力、整数型のバリデーション、最小値1、最大値10のバリデーションを設定
+            'quantity' => 'required|integer|min:1|max:10',
+        ]);
+        // 主キーでレコードを取得(穴埋め)
+        $cart = 
+        // 既にカートに商品が入っている場合(穴埋め)
+        if (    ) {
+            // カートに登録されている注文数と追加する注文数を加算(穴埋め)
+            $new_quantity = 
+            // 注文数が10を超える場合は、10に設定(穴埋め)
+            if (                  ) {
+                $new_quantity = 
             }
-            $cart->quantity = $new_quantity;
-            $cart->update(['quantity' => $new_quantity]);
+            // 注文数を更新(穴埋め)
+            $cart->
+        // カートに商品が入っていない場合
         } else {
-            Cart::create([
-                'ident' => $request->ident,
-                'quantity' => $request->quantity,
-            ]);
+            // 商品番号と注文数を登録(穴埋め)
+            Cart::
         }
-        return redirect()->route('cart.index');
+        // カート内の商品一覧を表示するindexメソッドにリダイレクト(穴埋め)
+        return 
     ```
 
-**【解説】**
+## ⑤コントローラに`index`メソッドを作成
 
-`use App\Models\Cart`: `Cart`モデルを使用する宣言をします。
+作成した`CartController`に`index`メソッドを追加してください。
+ただし、[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で学んだ知識だけでは不十分なので、以下の補足を参考にしてください。
 
-`public function store`: <br>
-Laravelでは、コントローラに記述する`store` メソッドは、「データを新規登録するためのメソッド」として一般的に使われます。
-
-`$cart = Cart::create`: <br>
-`Cart::create`メソッドは、`Cart`モデルを使って、データベースに新しいレコードを登録するメソッドです。
-`create`メソッドの引数には、登録するデータを連想配列で指定します。
-ここでは、`ident`カラムに`$request->ident`の値、`quantity`カラムに`$request->quantity`の値を登錺します。
-
-`return redirect()->route('cart.index');`: <br>
-`redirect`関数は、指定したURLにリダイレクトする関数です。
-`route`関数は、指定したルートのURLを返す関数です。
-ここでは、`cart.index`という名前のルートにリダイレクトしています。
-ちなみに、`cart.index`という名前のルートはまだ存在していませんが、後ほど作成するindexメソッドに対応するルートです。
-
-## ルーティングと商品詳細画面の修正
-
-### ルーティングの修正
-
-CartControllerの`store`メソッドを定義しましたが、そもそも商品詳細画面から`store`メソッドにリクエストを送信するためのルーティングが設定されていません。
-
-また、`store`メソッドでカートに商品を追加した後、合わせてカートの一覧を表示するための`index`メソッドも作成するため、そのルーティングも追加します。
-
-そのため、ルーティングを追加する必要があります。
-**routes/web.php**を以下のように修正してください。
-
-```php
-<?php
-
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\CartController; // 追加
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::get('/', function () {
-    return view('index');
-})->name('index');
-
-//Route::post('item', [ItemController::class, 'index'])->name('item.index');
-Route::match(['get', 'post'], 'item/{genre?}', [ItemController::class, 'index'])->name('item.index');
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
-
-// --- 以下を追加 ---
-Route::get('cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('cart', [CartController::class, 'store'])->name('cart.store');
-// --- ここまで ---
-```
-
-**【解説】**
-
-`use App\Http\Controllers\CartController;`: <br>
-`CartController`クラスを使うための宣言です。
-
-`Route::get('cart', [CartController::class, 'index'])->name('cart.index');`: <br>
-`cart`というURLにGETリクエストが送信された場合、`CartController`クラスの`index`メソッドが呼び出されるように設定しています。
-また、`name`メソッドで、このルートに`cart.index`という名前を付けています。
-
-`Route::post('cart', [CartController::class, 'store'])->name('cart.store');`: <br>
-`cart`というURLにPOSTリクエストが送信された場合、`CartController`クラスの`store`メソッドが呼び出されるように設定しています。
-
-### 商品詳細画面の修正
-
-商品詳細画面のフォームの`action`属性を`route`関数を使って`cart.store`ルートに変更してください。
-
-`resources/views/item/show.blade.php`を以下のように修正してください。
-
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
-</head>
-<body>
-<h3>商品詳細</h3>
-<!-- action属性をroute関数を使ってcart.storeルートに変更 -->
-<form method="POST" action="{{ route('cart.store') }}">
-    @csrf
-    <input type="hidden" name="ident" value="{{ $item->ident }}">
-    <table>
-        <tr><th>商品名</th>
-        <td>{{ $item->name }}</td></tr>
-        <tr><td colspan="2"><div class="td_center">
-        <img class="detail_img" src="{{ asset('images/'.$item->image )}}"></div></td></tr>
-        <tr><th>メーカー・著者<br>アーティスト</th>
-        <td>{{ $item->maker }}</td></tr>
-        <tr><th>価 格</th>
-        <td>&yen;{{  number_format( $item->price) }}</td></tr>
-        <tr><th>注文数</th>
-        <td><select name="quantity">
-            @for ( $i=1;  $i<=10;  $i++ )
-                <option value="{{ $i }}"> {{ $i }} </option>
-            @endfor
-        </select></td></tr>
-        <tr><th colspan="2"><input type="submit" value="カートに入れる"></th></tr>
-    </table>
-</form>
-<br>
-<a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>
-</body>
-</html>
-```
-
-**【解説】**
-
-`<form method="POST" action="{{ route('cart.store') }}">`: <br>
-`route`関数を使って、`cart.store`ルートにリクエストを送信するようにしています。
-
-## CartControllerのindexメソッドの作成
-
-次に、カート内の商品を一覧表示するための`index`メソッドを作成します。
-
-作成したCartController.phpを開き、以下のように`index`メソッドを追加してください
-
-**app/Http/Controllers/CartController.php**
-
-```php
-<?php
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Cart;
-
-class CartController extends Controller
-{
-    // --- 以下を追加 ---
-    public function index()
-    {
-        $carts = Cart::with('item')->get();
-        return view('cart.index', ['carts' => $carts]);
-    }
-    // --- ここまで ---
-
-    public function store(Request $request)
-    {
-        $cart = Cart::create([
-            'ident' => $request->ident,
-            'quantity' => $request->quantity,
-        ]);
-        return redirect()->route('cart.index');
-    }
-}
-```
-
-**【解説】**
-
-`$carts = Cart::with('item')->get();`: <br>
-`Cart`モデルの`with`メソッドは、リレーション先のモデルを取得するメソッドです。
-ここでは、`Cart`モデルの`item`メソッドを取得しています。
-`get`メソッドは、取得したデータをコレクションで返すメソッドです。
-つまり、`$carts`には、`Cart`モデルのデータとそれに紐づく`Item`モデルのデータが入ったコレクションが代入されます。
-
-ただし、`Cart`モデルに`item`メソッドが存在しないため、エラーが発生します。
-そのため、`Cart`モデルに`item`メソッドを追加する必要があります。
-それについては次項で説明します。
-
-`return view('cart.index', ['carts' => $carts]);`: <br>
-`view`関数は、ビューを返す関数です。
-第1引数には、表示するビューファイルのパスを指定します。
-第2引数には、ビューファイルに渡すデータを連想配列で指定します。
-ここでは、`cart.index`ビューファイルに`$carts`を渡しています。
-
-## Cartモデルのitemメソッドの作成
-
-`Cart`モデルに`item`メソッドを追加します。
-その前に、なぜ`Cart`モデルに`item`メソッドを追加するのかについて説明します。
-
-`Cart`モデルに`item`メソッドを追加する理由は、`Cart`モデルと`Item`モデルのリレーションを設定するためです。
-リレーションとは、データベースのテーブル間における関連性をモデル間にも反映させるための機能です。
-リレーションを設定することで、モデル間のデータ取得が容易になり、コードの記述量が減ります。
-
-では、今回の場合は`Cart`モデルと`Item`モデルにどのような関連性があるのでしょうか。
-それには、`cart`テーブルと`items`テーブルの`ident(商品番号)`カラムが関連しているということが挙げられます。
-ここでいう関連しているとは、`cart`テーブルの`ident`カラムの値が`items`テーブルの`ident`カラムの値と一致するということです。
-
-また、1つのカートに対して複数の商品が存在します。
-このことをデータベースの用語で言うと、`cart`テーブルと`items`テーブルは**1対多の関係にある**と言えます。
-これらを踏まえて、`Cart`モデルに`item`メソッドを追加します。
-
-1. `app/Models/Cart.php`を開き、以下のように`item`メソッドを追加してください
+- カート内の商品一覧を取得するには...
+  - [CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)ではカートの情報だけを取得したが、今回はカートに入っている商品の詳細情報も取得する必要がある
+  - 前期のPHPではSQL文に`JOIN`を使って複数のテーブルからデータを取得したが、Laravelではモデルのリレーションを使ってデータを取得する
+  - モデルのリレーションは既に設定しているが、コントローラ側では、以下のように`with`メソッドを使ってリレーション先のモデルを取得する
 
     ```php
-        <?php
-
-        namespace App\Models;
-
-        use Illuminate\Database\Eloquent\Factories\HasFactory;
-        use Illuminate\Database\Eloquent\Model;
-
-        class Cart extends Model
-        {
-            use HasFactory;
-            protected $table = 'cart';
-            protected $primaryKey = 'ident';
-
-            // --- 以下を追加 ---
-            public function item()
-            {
-                return $this->belongsTo(Item::class, 'ident', 'ident');
-            }
-            // --- ここまで ---
-        }
+    // Cartモデルのデータとそれに紐づくItemモデルのデータを取得
+    $carts = Cart::with('item')->get();
     ```
 
-**【解説】**
+これを踏まえて、以下を穴埋めしながら`CartController`に`index`メソッドを追加してください。
 
-`public function item()`: <br>
-`item`メソッドは、`Cart`モデルと`Item`モデルのリレーションを設定するメソッドです。
+    ```php
+    public function index()
+    {
+        // Cartモデルのデータとそれに紐づくItemモデルのデータを取得(穴埋め)
+        $carts = 
+        // cart.indexビューを表示(穴埋め)
+        return 
+    }
+    ```
 
-`return $this->belongsTo(Item::class, 'ident', 'ident');`: <br>
-`belongsTo`メソッドは、リレーション先のモデルを取得するメソッドです。
-第1引数には、リレーション先のモデルを指定します。
-第2引数には、リレーション先のモデルの外部キー(`items`テーブルの`ident`カラム)を指定します。
-第3引数には、リレーション先のモデルの主キー(`cart`テーブルの`ident`カラム)を指定します。
+## ⑥ビュー(商品詳細画面)の修正
 
-以上で、`Cart`モデルと`Item`モデルのリレーションが設定されました。
+商品詳細画面(`resources/views/item/show.blade.php`)のフォームの`action`属性を`route`関数を使って`cart.store`ルートに変更してください。
 
-## カート内の商品画面の作成
+## ⑦ビュー(カート内の商品画面)の作成
 
 最後に、カート内の商品を一覧表示するビューを作成します。
 
 1. `resources/views`ディレクトリに`cart`ディレクトリを作成する
-2. `cart`ディレクトリに`index.blade.php`を作成し、以下のように記述する
+2. `cart`ディレクトリに`index.blade.php`を作成し、以下のように穴埋めを埋めつつ記述する
 
     **resources/views/cart/index.blade.php**
 
+    {% row %}
     ```php
     <!DOCTYPE html>
     <html lang="ja">
@@ -409,18 +241,26 @@ class CartController extends Controller
             <th>金額</th>
         </tr>
         @php
+            // 合計金額を初期化
             $total = 0;
         @endphp
-        @foreach( $carts  as  $cart )
+
+        <!--  カート内の商品を一覧表示する処理を記述(穴埋め)  -->
+        @foreach(              )
             <tr>
                 <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$cart->item->image )}}"></td>
-                <td class="td_item_name"> {{ $cart->item->name }} </td>
-                <td class="td_item_maker"> {{ $cart->item->maker }} </td>
-                <td class="td_right">&yen; {{  number_format( $cart->item->price) }} </td>
+                <!-- 商品名(穴埋め) -->
+                <td class="td_item_name"> {{                     }} </td>
+                <!-- メーカー(穴埋め) -->
+                <td class="td_item_maker"> {{                     }} </td>
+                <!-- 価格(穴埋め) -->
+                <td class="td_right">&yen; {{  number_format(                   ) }} </td>
                 <td class="td_right"> {{ $cart->quantity }} </td>
-                <td class="td_right">&yen; {{ number_format( $cart->item->price * $cart->quantity) }}</td>
+                <!-- 金額(穴埋め) -->
+                <td class="td_right">&yen; {{ number_format(                                 ) }}</td>
             </tr>
             @php
+                // 合計金額を計算(穴埋め)
                 $total += $cart->item->price * $cart->quantity;
             @endphp
         @endforeach
@@ -442,14 +282,15 @@ class CartController extends Controller
 上記では変数を初期化するのに利用しています。
 
 `$cart->item->image`: <br>
-`$cart`は`Cart`モデルのインスタンスです。
+`$cart`は`Cart`モデルのオブジェクトです。
 `$cart->item`は、`Cart`モデルの`item`メソッドを呼び出して、`Item`モデルのインスタンスを取得しています。
 `$cart->item->image`は、`Item`モデルの`image`カラムの値を取得しています。
-その他の、`$cart->item->name`、`$cart->item->maker`、`$cart->item->price`、`$cart->quantity`も同様です。
 
 逆に、`$cart->quantity`の場合は、`$cart`は`Cart`モデルのインスタンスですが、`quantity`カラムは`cart`テーブルに存在するため、`$cart->quantity`で値を取得できます。
 
-それでは動作確認してみましょう。
+ {% endrow %}
+
+## 動作確認
 
 1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
 2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、画面下部のポートをクリックし、地球儀マークをクリックする<br>
