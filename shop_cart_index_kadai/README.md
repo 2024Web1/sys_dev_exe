@@ -220,7 +220,7 @@
 
     **resources/views/cart/index.blade.php**
 
-    {% row %}
+    {% raw %}
     ```php
     <!DOCTYPE html>
     <html lang="ja">
@@ -289,7 +289,7 @@
 
 逆に、`$cart->quantity`の場合は、`$cart`は`Cart`モデルのインスタンスですが、`quantity`カラムは`cart`テーブルに存在するため、`$cart->quantity`で値を取得できます。
 
- {% endrow %}
+ {% endraw %}
 
 ## ⑧動作確認
 
