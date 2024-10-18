@@ -2,15 +2,14 @@
 
 - [【課題】カート内の商品画面の作成](#課題カート内の商品画面の作成)
   - [事前準備](#事前準備)
-  - [はじめに](#はじめに)
-  - [データベース環境構築](#データベース環境構築)
-  - [マイグレーション](#マイグレーション)
-  - [シーダー](#シーダー)
-  - [phpMyAdminでのデータ確認](#phpmyadminでのデータ確認)
-  - [モデルの作成](#モデルの作成)
-  - [コントローラの作成](#コントローラの作成)
+  - [本章の狙い](#本章の狙い)
+  - [カート内の商品画面の仕様](#カート内の商品画面の仕様)
+  - [①データベース環境構築](#データベース環境構築)
+  - [②モデルの作成](#モデルの作成)
+  - [③ルーティングの修正](#ルーティングの修正)
+  - [④コントローラの作成](#コントローラの作成)
   - [ルーティングと商品詳細画面の修正](#ルーティングと商品詳細画面の修正)
-    - [ルーティングの修正](#ルーティングの修正)
+    - [ルーティングの修正](#ルーティングの修正-1)
     - [商品詳細画面の修正](#商品詳細画面の修正)
   - [CartControllerのindexメソッドの作成](#cartcontrollerのindexメソッドの作成)
   - [Cartモデルのitemメソッドの作成](#cartモデルのitemメソッドの作成)
@@ -61,189 +60,98 @@
     .env
     ```
 
-## はじめに
+## 本章の狙い
 
-本章では、カート内の商品画面を通じて、Laravelのモデル、コントローラ、ビュー、ルーティングの復習を行います。
+- [モデル、コントローラ](../shop_item_index/README.md)の章で学んだ知識(CRUDのCreate)を定着させる
+- カート内の商品画面を再構築する
 
-## データベース環境構築
+## カート内の商品画面の仕様
+
+ここでは、カート内の商品画面の仕様を説明します。
+今回は、
+
+- カート内の商品追加
+- カート内の商品一覧表示
+
+の2つの機能を実装します。
+
+## ①データベース環境構築
 
 新しくソースコードをcloneしたので、再度データベース環境構築をする必要があります。
-今回は、itemsテーブルに加え、カート内の商品を管理するためのcartテーブルを作成します。
-なお、.envファイルは既に編集済みのものを上書きしているので、再度編集する必要はありません。
+今回は、`items`テーブルに加え、カート内の商品を管理するための`cart`テーブルを作成します。
 
-## マイグレーション
+[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)を参考に、データベース環境を作成してください。
+なお、`.env`ファイルは既に編集済みのものを上書きしているので、再度編集する必要はありません。
 
-今回は、cartテーブルを作成するためのマイグレーションファイルを追加し、コマンドを実行してテーブルを作成します。
-なお、cartテーブルの構造は前期同様以下の通りです。
+## ②モデルの作成
 
-| カラム名 | データ型 | 制約 | 備考 |
-| - | - | - | - |
-|ident|int型|主キー|商品番号|
-|quantity|int型||注文数|
+[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)と同様の`Cart`モデルを作成してください。
 
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、cartテーブル用のマイグレーションファイルを作成する
+## ③ルーティングの修正
 
-```bash
-php artisan make:migration create_cart_table
-```
+次の[④コントローラの作成](#コントローラの作成)にて、`CartController`の以下の2つのメソッドを作成します。
 
-4. `database/migrations/20xx_xx_xx_xxxxxx_create_cart_table.php` が作成されていることを確認する
-5. `up`メソッドを以下のように修正する
+- `store`メソッド: カートに商品を追加する処理
+- `index`メソッド: カート内の商品を一覧表示する処理
 
-    ```php
-    public function up(): void
-        {
-            Schema::create('cart', function (Blueprint $table) {
-                // デフォルトの記述はコメントアウト
-                // $table->id();
-                // $table->timestamps();
+そのため、ルーティングを追加し、URLとコントローラのメソッドをマッピングする必要があります。
+以下の条件を満たすように、`routes/web.php`を修正してください。
 
-                // --- 以下を追加 ---
-                $table->integer('ident')->primary();
-                $table->integer('quantity');
-                // 外部キー制約を追加
-                $table->foreign('ident')->references('ident')->on('items')->onDelete('cascade');
-                // --- ここまで ---
-            });
-        }
-    ```
+1. `cart`というURLに`POST`リクエストが送信された場合、`CartController`クラスの`store`メソッドが呼び出されるように設定し、`cart.store`という名前を付ける
+2. `cart`というURLに`GET`リクエストが送信された場合、`CartController`クラスの`index`メソッドが呼び出されるように設定し、`cart.index`という名前を付ける
 
-    **【解説】**
+## ④コントローラの作成
 
-    `$table->foreign('ident')->references('ident')->on('items')->onDelete('cascade');`: <br>
-    上記はメソッドチェーンと呼ばれる記述方法です。
-    メソッドチェーンは、メソッドを連続して呼び出す記述方法で、コードを簡潔に書くことができます。
+1. コマンドを使ってコントローラ(`CartController`)を作成する
+2. 作成された`app/Http/Controllers/CartController.php`に`store`メソッドを記述する
 
-    `foreign`メソッドは、外部キー制約を追加するメソッドです。
-    ここでは、`cart`テーブルの`ident`カラムに外部キー制約を追加しています。
-    `references`メソッドで、外部キー制約の参照先を指定しています。
-    ここでは、`items`テーブルの`ident`カラムを参照しています。
-    `onDelete('cascade')`は、参照先のレコードが削除された際に、`cart`テーブルのレコードも削除されるように設定しています。
+    **【`store`メソッドによるカート追加処理の流れ】**
+    1. 既にカートに入っている商品かチェック
+    2. 同じ商品番号がカートに登録されている場合
+       - 登録されている注文数と追加する注文数を加算
+       - 注文数が10を超える場合は、10に設定
+       - 注文数を更新
+    3. 同じ商品番号がカートに登録されていない場合
+       - 商品番号と注文数を登録
 
-    そもそも外部キー制約とはなんでしょうか？
-    外部キー制約とは、テーブル間の関連性を強制する制約のことです。
-    例えば、`cart`テーブルの`ident`カラムに外部キー制約を設定することで、`cart`テーブルの`ident`カラムには、`items`テーブルの`ident`カラムに存在する値のみが入るように制約を設けることができます。
+    ただし、上記を実装するには、[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で学んだ知識だけでは不十分なので、以下の補足を参考にしてください。
 
-6. 以下のコマンドを実行して、マイグレーションを実行する
+    1. 「既にカートに入っている商品かチェック」を実装するには...
+       - この場合は主キー(商品番号)を使い、`cart`テーブルにレコードが存在するかどうかを確認する
+       - 主キーでレコードを取得する方法として、[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章にて「ルートモデルバインディング」を説明したが、今回は`GET`リクエストではなく、`POST`リクエストで商品番号を取得するため、ルートモデルバインディングは使えない
+       - そのため、`Cart`モデルの`find`メソッドを使って、商品番号を指定してレコードを取得する
 
-    ```bash
-    php artisan migrate
-    ```
-
-これで、itemsテーブルと新たにcartテーブルが作成されました。
-
-## シーダー
-
-シーダーは新たに作成するファイルはないので、前回と同じItemTableSeeder.phpを実行するのみです。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動しているなら不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、シーダーを実行する
-
-    ```bash
-    php artisan db:seed --class=ItemTableSeeder
-    ```
-
-以上で、itemsテーブルにデータが挿入されました。
-
-## phpMyAdminでのデータ確認
-
-itemsテーブルとcartテーブルが作成されたか、phpMyAdminを使って確認してみましょう。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ポートをクリックする
-3. 地球儀マークをクリックする<br>
-   ![](./images/port_phpmyadmin_click.png)
-4. 以下の手順により、itemsテーブルにデータが挿入されているか確認する
-   ![](./images/phpmyadmin_1.png)
-   ![](./images/phpmyadmin_2.png)
-
-   ※画像を見ると、itemsテーブル以外にも、いくつかのテーブルが作成されていることがわかりますが、これらはLaravelのデフォルトで作成されるテーブルです。
-   database/migrationsディレクトリには、これらのテーブルを作成するためのマイグレーションファイルが用意されており、`php artisan migrate`コマンドを実行することで、これらのテーブルが作成されました。
-
-以上で、データベースの準備が整いました。
-
-## モデルの作成
-
-前回同様コマンドを使ってモデルを作成します。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、Cartモデルを作成する
-
-```bash
-php artisan make:model Cart
-```
-
-4. app/Models/Cart.php が作成されていることを確認する
-5. 以下のようにCart.phpを修正する
-
-    ```php
-    <?php
-
-    namespace App\Models;
-
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
-    use Illuminate\Database\Eloquent\Model;
-
-    class Cart extends Model
-    {
-        use HasFactory;
-        // --- 以下を追加 ---
-        protected $table = 'cart';
-        protected $primaryKey = 'ident';
-        // --- ここまで ---
-    }
-    ```
-
-    **【解説】**
-
-    `protected $table = 'cart';`: <br>
-    `protected $table`プロパティは、モデルが対応するテーブル名を指定するプロパティです。
-    Laravelでは、基本的には、モデル名は単数形、そのモデルに対応するテーブル名は複数形でなければエラーが発生します。
-    例えば、`Item`モデルに対応するテーブルは`items`テーブルであるため、`Item`モデルの`$table`プロパティには自動的に`items`が指定され、これにより`Item`モデルによるデータベース操作が可能になります。
-
-    しかし今回の場合は、`Cart`モデルに対応するテーブルは`cart`テーブルであるため、明示的に`$table`プロパティには`cart`を指定しています。
-    これにより、今までどおりコントローラで`Cart`モデルを使ってデータベースとのやり取りを行うことができます。
-
-## コントローラの作成
-
-コマンドを使ってコントローラを作成します。
-
-1. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する(既に起動している場合は不要)
-2. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
-3. 以下のコマンドを実行して、CartControllerを作成する
-
-```bash
-php artisan make:controller CartController
-```
-
-4. app/Http/Controllers/CartController.php が作成されていることを確認する
-5. 作成されたCartController.phpをVSCodeで開き、まずはcartテーブルに必要なデータを登録するstoreメソッドを追加する
+        ```php
+        $cart = Cart::find($request->ident);
+        ```
+       - 
+    2. 「同じ商品番号がカートに登録されている場合」を実装するには...-
 
     ```php
     <?php
     namespace App\Http\Controllers;
 
     use Illuminate\Http\Request;
-    use App\Models\Cart; // 追加
+    // この行にCartモデルを使う宣言を追加
 
-    class CartController extends Controller
+    public function store(Request $request)
     {
-        // --- 以下を追加 ---
-
-        public function store(Request $request)
-        {
-            $cart = Cart::create([
+        // 既にカートに入っている商品かチェック
+        $cart = Cart::find($request->ident);
+        if ($cart) {
+            $new_quantity = $request->quantity + $cart->quantity;
+            if ($new_quantity > 10) {
+                $new_quantity = 10;
+            }
+            $cart->quantity = $new_quantity;
+            $cart->update(['quantity' => $new_quantity]);
+        } else {
+            Cart::create([
                 'ident' => $request->ident,
                 'quantity' => $request->quantity,
             ]);
-            return redirect()->route('cart.index');
         }
-        // --- ここまで ---
-    }
+        return redirect()->route('cart.index');
     ```
 
 **【解説】**
