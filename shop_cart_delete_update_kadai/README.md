@@ -3,12 +3,10 @@
 - [カートの削除・更新機能](#カートの削除更新機能)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
-  - [CRUDとは](#crudとは)
-  - [削除機能をもったカート一覧画面の作成](#削除機能をもったカート一覧画面の作成)
+  - [カートの削除機能を実装](#カートの削除機能を実装)
     - [ルーティングの設定](#ルーティングの設定)
-    - [ビューの作成(カート一覧画面の作成とリンク修正)](#ビューの作成カート一覧画面の作成とリンク修正)
-    - [コントローラを修正(`index`メソッドと`destroy`メソッドの追加)](#コントローラを修正indexメソッドとdestroyメソッドの追加)
-    - [動作確認(1回目:削除機能)](#動作確認1回目削除機能)
+    - [削除ボタンの追加](#削除ボタンの追加)
+    - [コントローラに削除機能を実装](#コントローラに削除機能を実装)
   - [カートの更新機能を実装](#カートの更新機能を実装)
     - [ルーティングの設定](#ルーティングの設定-1)
     - [更新ボタンの追加](#更新ボタンの追加)
@@ -17,35 +15,17 @@
 
 ## 事前準備
 
-前回の[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で使用したコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
+前回の[カート内の商品画面](../shop_cart_index/README.md)でcloneしたコードをそのまま利用してください。
 
 ## はじめに
 
-- LaravelでCRUD機能を実装する方法を学ぶ
-- ルーティングの可読性を実感する
+本章では、Laravelを使って、カートの削除・更新機能を作成します。
 
-## CRUDとは
-
-CRUDについておさらいしましょう。
-Laravelのみならず他の言語でも多用される言葉ですので、ここでしっかりとおさえておいてください。
-
-CRUDとは、データベース操作の基本的な機能の頭文字を取ったものです。
-具体的には、以下の4つの操作を指します。
-
-- Create（作成）: SQLのINSERT文に相当←既に実装済み
-- Read（読み取り）: SQLのSELECT文に相当←既に実装済み
-- Update（更新）: SQLのUPDATE文に相当
-- Delete（削除）: SQLのDELETE文に相当
-
-本章では、CRUDのうち、UpdateとDeleteの機能を実装します。
-
-## 削除機能をもったカート一覧画面の作成
+## カートの削除機能を実装
 
 まずは、カート内の商品を削除する機能を実装します。
 
 ### ルーティングの設定
-
----
 
 `routes/web.php`に以下のルーティングを追加します。
 
@@ -56,36 +36,37 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CartController;
 
-// 途中省略
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Route::get('cart/create', [CartController::class, 'create'])->name('cart.create');
+Route::get('/', function () {
+    return view('index');
+})->name('index');
+
+//Route::post('item', [ItemController::class, 'index'])->name('item.index');
+Route::match(['get', 'post'], 'item/{genre?}', [ItemController::class, 'index'])->name('item.index');
+Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
+
+Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('cart', [CartController::class, 'store'])->name('cart.store');
 // --- 以下を追加 ---
-Route::get('cart', [CartController::class, 'index'])->name('cart.index');
 Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.destroy');
 ```
 
 **【解説】**
 
-`Route::get('cart', [CartController::class, 'index'])->name('cart.index');`: <br>
-カート内の商品を一覧表示するためのルーティングです。
-`CartController`の`index`メソッドを呼び出します。
+- `Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.destroy');`: <br>
+  カート内の商品を削除するためのルーティングです。
+  `CartController`の`destroy`メソッドを呼び出します。
+  `Route::delete`メソッドを使って、HTTPメソッドがDELETEのリクエストを受け付けるように設定しています。
 
-`Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.destroy');`: <br>
-カート内の商品を削除するためのルーティングです。
-`CartController`の`destroy`メソッドを呼び出します。
-`Route::delete`メソッドを使って、HTTPメソッドが`DELETE`のリクエストを受け付けるように設定しています。
+  今までのリクエストはGETとPOSTだけでしたが、今回はDELETEメソッドを使います。
+  GETやPOSTを使っても同様のルーティングを設定できますが、処理の性質によって使い分けます。
 
-今までのリクエストは`GET`と`POST`だけでしたが、今回は`DELETE`メソッドを使います。
-`GET`や`POST`を使っても同様のルーティングを設定できますが、処理の性質によって使い分けます。
+### 削除ボタンの追加
 
-### ビューの作成(カート一覧画面の作成とリンク修正)
-
----
-
-`resources/views/cart/index.blade.php`を作成し、以下のように記述します。
-
-{% raw %}
+`resources/views/cart/index.blade.php`を以下のように修正します。
 
 ```php
 <!DOCTYPE html>
@@ -93,37 +74,61 @@ Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.dest
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>サンプル</title>
+<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
+<title>ショッピングサイト</title>
 </head>
 <body>
-    <h3>カート一覧</h3>
-    @if (session('message'))
-        <font color="red">{{ session('message') }}</font>
-    @endif
-    <table>
-    <tr>
-        <th>商品番号</th>
-        <th>数量</th>
-        <th>削除</th>
-    </tr>
-    @foreach( $carts  as  $cart )
+    <!-- 以下を追加 -->
+    @if( count($carts) == 0 )
+        <h3>カート内に商品はありません</h3>
+        <a href="{{ route('index') }}">ジャンル選択に戻る</a>
+    @else
+    <!-- ここまで -->
+        <h3>カート内の商品</h3>
+        <table>
         <tr>
-            <td> {{ $cart->ident }} </td>
-            <td> {{ $cart->quantity }} </td>
-            <td>
-                <form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">
-                    @csrf
-                    @method('DELETE')
-                    <input type="submit" value="削除">
-                </form>
-            </td>
-            <!-- ここまで -->
+            <th>&nbsp;</th>
+            <th>商品名</th>
+            <th>メーカー・著者<br>アーティスト</th>
+            <th>価格</th>
+            <th>注文数</th>
+            <th>金額</th>
+            <th>削除</th> // 追加
         </tr>
-    @endforeach
-    </table>
-
-    <a href="{{ route('cart.create') }}">カートに追加</a>
-
+        @php
+            $total = 0;
+        @endphp
+        @foreach( $carts  as  $cart )
+            <tr>
+                <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$cart->item->image )}}"></td>
+                <td class="td_item_name"> {{ $cart->item->name }} </td>
+                <td class="td_item_maker"> {{ $cart->item->maker }} </td>
+                <td class="td_right">&yen; {{  number_format( $cart->item->price) }} </td>
+                <td class="td_right"> {{ $cart->quantity }} </td>
+                <td class="td_right">&yen; {{ number_format( $cart->item->price * $cart->quantity) }}</td>
+                <!-- 以下を追加 -->
+                <td>
+                    <form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">
+                        @csrf
+                        @method('DELETE')
+                        <input type="submit" value="削除">
+                    </form>
+                </td>
+                <!-- ここまで -->
+            </tr>
+            @php
+                $total += $cart->item->price * $cart->quantity;
+            @endphp
+        @endforeach
+        <tr>
+            <th colspan="5">合計金額</th><td class="td_right">&yen; {{ number_format($total) }}</td>
+            <td>&nbsp;</td> // 追加
+        </tr>
+        </table>
+        <br>
+        <-- 注文するリンクはまだ作成していないので、href属性は空にしています -->
+        <a href="{{ route('index') }}">ジャンル選択に戻る</a>&nbsp;&nbsp;<a href="">注文する</a>
+    @endif
 </body>
 </html>
 ```
@@ -131,54 +136,18 @@ Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.dest
 **【解説】**
 
 `<form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">`: <br>
-削除ボタンを押すと、カート内の商品が削除されるように設定しています。
-`route`関数の第2引数に`['cart' => $cart->ident]`を指定しています。
-これにより、`$cart->ident`の値が`{cart}`に代入されます。
+  削除ボタンを押すと、カート内の商品が削除されるように設定しています。
+  `route`関数の第2引数に`['cart' => $cart->ident]`を指定しています。
+  これにより、`$cart->ident`の値が`{cart}`に代入されます。
 
 `@method('DELETE')`: <br>
-`DELETE`リクエストを使うことを指定しています。
-HTTPのリクエストメソッドにおける`DELETE`リクエストは、リソースの削除を行うためのメソッドです。
-
-`GET`リクエストや`POST`リクエストを使う場合は特に指定しなかったのに対し、`DELETE`リクエストを使う場合は明示的に指定する必要があります。
-なぜなら、HTMLの`form`の`method`属性には`DELETE`リクエストがサポートされていないためです。
-そのため、`@method('DELETE')`を使って、`DELETE`リクエストを使うことを明示的に指定しています。
+DELETEメソッドを使うことを指定しています。
+GETメソッドやPOSTメソッドを使う場合は特に指定しなかったのに対し、DELETEメソッドを使う場合は明示的に指定する必要があります。
+なぜなら、ブラウザはDELETEメソッドをサポートしていないためです。
+そのため、`@method('DELETE')`を使って、DELETEメソッドを使うことを明示的に指定しています。
 これにより、ルーティングを見るだけで、削除機能があることがわかります。
 
-次に、カート追加画面からカート一覧画面に遷移するリンクを修正します。
-
-**resources/views/cart/create.blade.php**
-
-```php
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>サンプル</title>
-</head>
-<body>
-    <h3>カートに追加</h3>
-    @if (session('message'))
-        <font color="red">{{ session('message') }}</font>
-    @endif
-    <form action="{{ route('cart.store') }}" method="POST">
-    @csrf
-    番号:<input type="number" name="ident" min="1" max="15"><br>
-    数量:<input type="number" name="quantity" min="1" max="10"><br><br>
-    <input type="submit" value="カートに追加">
-    </form>
-    // --以下を追加--
-    <a href="{{ route('cart.index') }}">カート一覧へ</a>
-    // --ここまで--
-</body>
-</html>
-```
-
-{% endraw %}
-
-### コントローラを修正(`index`メソッドと`destroy`メソッドの追加)
-
----
+### コントローラに削除機能を実装
 
 `app/Http/Controllers/CartController.php`を以下のように修正します。
 
@@ -191,20 +160,36 @@ use App\Models\Cart;
 
 class CartController extends Controller
 {
-    
-    // 途中省略
-
-    // --- 以下を追加 ---
     public function index()
     {
-        $carts = Cart::all();
+        $carts = Cart::with('item')->get();
         return view('cart.index', ['carts' => $carts]);
     }
 
+    public function store(Request $request)
+    {
+        // 既にカートに入っている商品かチェック
+        $cart = Cart::find($request->ident);
+        if ($cart) {
+            $new_quantity = $request->quantity + $cart->quantity;
+            if ($new_quantity > 10) {
+                $new_quantity = 10;
+            }
+            $cart->quantity = $new_quantity;
+            $cart->update(['quantity' => $new_quantity]);
+        } else {
+            Cart::create([
+                'ident' => $request->ident,
+                'quantity' => $request->quantity,
+            ]);
+        }
+        return redirect()->route('cart.index');
+    }
+
+    // --- 以下を追加 ---
     public function destroy(Cart $cart)
     {
         $cart->delete();
-        $request->session()->flash('message', '削除しました');
         return redirect()->route('cart.index');
     }
     // --- ここまで追加 ---
@@ -228,11 +213,7 @@ Laravelでは、コントローラのメソッドにdestroyと命名する場合
 削除処理が終わったら、カート内の商品一覧画面にリダイレクトします。
 
 以上で、カート内の商品を削除する機能が実装できました。
-
-### 動作確認(1回目:削除機能)
-
----
-
+動作確認をしてみましょう。
 以下のようにカート内の商品画面で削除ボタンを押し、商品が削除されることを確認してください。
 
 ![](./images/cart_delete1.png)
@@ -381,7 +362,7 @@ PATCHメソッドは、リソースの一部を更新するためのメソッド
 
 `@method('PATCH')`: <br>
 PATCHメソッドを使うことを指定しています。
-`GET`リクエストや`POST`リクエストを使う場合は特に指定しなかったのに対し、PATCHメソッドを使う場合は明示的に指定する必要があります。
+GETメソッドやPOSTメソッドを使う場合は特に指定しなかったのに対し、PATCHメソッドを使う場合は明示的に指定する必要があります。
 なぜなら、ブラウザはPATCHメソッドをサポートしていないためです。
 そのため、`@method('PATCH')`を使って、PATCHメソッドを使うことを明示的に指定しています。
 これにより、ルーティングを見るだけで、更新機能があることがわかります。
