@@ -62,7 +62,7 @@
 
 ## 本章の狙い
 
-- [モデル、コントローラ](../shop_item_index/README.md)の章で学んだ知識(CRUDのCreate)を定着させる
+- [CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で学んだ知識を定着させる
 - カート内の商品画面を再構築する
 
 ## カート内の商品画面の仕様

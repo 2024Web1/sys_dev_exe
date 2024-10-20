@@ -1,6 +1,6 @@
-# カートの削除・更新機能
+# CRUD機能を作ろう！(UPDATE、DELETE編)
 
-- [カートの削除・更新機能](#カートの削除更新機能)
+- [CRUD機能を作ろう！(UPDATE、DELETE編)](#crud機能を作ろうupdatedelete編)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
   - [CRUDとは](#crudとは)
