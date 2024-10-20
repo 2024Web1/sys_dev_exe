@@ -11,8 +11,9 @@
     - [動作確認(1回目:削除機能)](#動作確認1回目削除機能)
   - [カートの更新機能を実装](#カートの更新機能を実装)
     - [ルーティングの設定](#ルーティングの設定-1)
-    - [更新ボタンの追加](#更新ボタンの追加)
-    - [コントローラに更新機能を実装](#コントローラに更新機能を実装)
+    - [ビューの修正(更新ボタンの追加)](#ビューの修正更新ボタンの追加)
+    - [コントローラの修正(`update`メソッドの追加)](#コントローラの修正updateメソッドの追加)
+  - [動作確認(2回目:更新機能)](#動作確認2回目更新機能)
   - [まとめ](#まとめ)
 
 ## 事前準備
@@ -100,30 +101,31 @@ Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.dest
     @if (session('message'))
         <font color="red">{{ session('message') }}</font>
     @endif
-    <table>
-    <tr>
-        <th>商品番号</th>
-        <th>数量</th>
-        <th>削除</th>
-    </tr>
-    @foreach( $carts  as  $cart )
+    @if( count($carts) == 0 )
+        <p>カート内に商品はありません</p>
+    @else
+        <table border="1">
         <tr>
-            <td> {{ $cart->ident }} </td>
-            <td> {{ $cart->quantity }} </td>
-            <td>
-                <form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">
-                    @csrf
-                    @method('DELETE')
-                    <input type="submit" value="削除">
-                </form>
-            </td>
-            <!-- ここまで -->
+            <th>商品番号</th>
+            <th>数量</th>
+            <th>削除</th>
         </tr>
-    @endforeach
-    </table>
-
+        @foreach( $carts  as  $cart )
+            <tr>
+                <td> {{ $cart->ident }} </td>
+                <td> {{ $cart->quantity }} </td>
+                <td>
+                    <form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">
+                        @csrf
+                        @method('DELETE')
+                        <input type="submit" value="削除">
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+        </table>
+    @endif
     <a href="{{ route('cart.create') }}">カートに追加</a>
-
 </body>
 </html>
 ```
@@ -201,7 +203,7 @@ class CartController extends Controller
         return view('cart.index', ['carts' => $carts]);
     }
 
-    public function destroy(Cart $cart)
+    public function destroy(Request $request, Cart $cart)
     {
         $cart->delete();
         $request->session()->flash('message', '削除しました');
@@ -233,20 +235,26 @@ Laravelでは、コントローラのメソッドにdestroyと命名する場合
 
 ---
 
-以下のようにカート内の商品画面で削除ボタンを押し、商品が削除されることを確認してください。
+以下の手順で動作確認をしてみましょう。
 
-![](./images/cart_delete1.png)
-![](./images/cart_delete2.png)
-
-phpMyAdminでもデータの整合性を確認してみましょう。
-
-![](./images/phpmyadmin.png)
+1. `http://localhost:{ポート番号}/cart`でカート一覧画面にアクセスする<br>
+    ![](./images/delete_kakunin1.png)
+2. カート追加画面にアクセスする<br>
+3. 商品番号と数量を入力し、カートに追加する<br>
+    ![](./images/delete_kakunin2.png)
+   ![](./images/delete_kakunin3.png)
+4. カート一覧画面に遷移し、商品が追加されていることを確認する<br>
+   ![](./images/delete_kakunin4.png)
+5. 削除ボタンを押し、商品がカート内から削除されていることを確認する<br>
+   ![](./images/delete_kakunin5.png)
 
 ## カートの更新機能を実装
 
-次に、カート内の商品の注文数を変更する機能を実装します。
+次に、カートの注文数を変更する機能を実装します。
 
 ### ルーティングの設定
+
+---
 
 `routes/web.php`に以下のルーティングを追加します。
 
@@ -257,20 +265,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CartController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::get('/', function () {
-    return view('index');
-})->name('index');
-
-//Route::post('item', [ItemController::class, 'index'])->name('item.index');
-Route::match(['get', 'post'], 'item/{genre?}', [ItemController::class, 'index'])->name('item.index');
-Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show');
+// 途中省略
 
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('cart', [CartController::class, 'store'])->name('cart.store');
 Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.destroy');
 // --- 以下を追加 ---
 Route::patch('cart/{cart}',[CartController::class, 'update'])->name('cart.update');
@@ -279,74 +276,57 @@ Route::patch('cart/{cart}',[CartController::class, 'update'])->name('cart.update
 **【解説】**
 
 `Route::patch('cart/{cart}',[CartController::class, 'update'])->name('cart.update');`: <br>
-カート内の商品の注文数を変更するためのルーティングです。
+カートの注文数を変更するためのルーティングです。
 `CartController`の`update`メソッドを呼び出します。
-`Route::patch`メソッドを使って、HTTPメソッドがPATCHのリクエストを受け付けるように設定しています。
+`Route::patch`メソッドを使って、HTTPメソッドが`PATCH`リクエストを受け付けるように設定しています。
 
-今回は、カート内の商品の注文数を変更するため、PATCHメソッドを使います。
-PATCHメソッドは、リソースの一部を更新するためのメソッドです。
-ちなみに、同じ更新するためのメソッドにPUTメソッドがあるのですが、PUTメソッドはリソース全体を更新するのに対し、PATCHメソッドはリソースの一部を更新します。
+今回は、カート内の商品の注文数を変更するため、`PATCH`メソッドを使います。
+`PATCH`メソッドは、リソースの一部を更新するためのメソッドです。
 
-### 更新ボタンの追加
+### ビューの修正(更新ボタンの追加)
+
+---
 
 `resources/views/cart/index.blade.php`を以下のように修正します。
 
+{% raw %}
 ```php
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('css/minishop.css')}}">
-<title>ショッピングサイト</title>
+<title>サンプル</title>
 </head>
 <body>
+    <h3>カート一覧</h3>
+    @if (session('message'))
+        <font color="red">{{ session('message') }}</font>
+    @endif
     @if( count($carts) == 0 )
-        <h3>カート内に商品はありません</h3>
-        <a href="{{ route('index') }}">ジャンル選択に戻る</a>
+        <p>カート内に商品はありません</p>
     @else
-        <h3>カート内の商品</h3>
-        <table>
+        <table border="1">
         <tr>
-            <th>&nbsp;</th>
-            <th>商品名</th>
-            <th>メーカー・著者<br>アーティスト</th>
-            <th>価格</th>
-            <th>注文数</th>
-            <th>金額</th>
+            <th>商品番号</th>
+            <th>数量</th>
             <th>削除</th>
         </tr>
-        @php
-            $total = 0;
-        @endphp
         @foreach( $carts  as  $cart )
             <tr>
-                <td class="td_mini_img"><img class="mini_img" src="{{ asset('images/'.$cart->item->image )}}"></td>
-                <td class="td_item_name"> {{ $cart->item->name }} </td>
-                <td class="td_item_maker"> {{ $cart->item->maker }} </td>
-                <td class="td_right">&yen; {{  number_format( $cart->item->price) }} </td>
-                <!-- 既存の注文数はコメントアウト -->
-                <!-- <td class="td_right"> {{ $cart->quantity }} </td> -->
-                <!-- プルダウンと更新ボタンを追加したものに変更 -->
+                <td> {{ $cart->ident }} </td>
+                <!-- 以前のコードはコメントアウト -->
+                <!-- <td> {{ $cart->quantity }} </td> -->
                 <!-- 以下を追加 -->
                 <td>
                     <form method="POST" action="{{ route('cart.update', ['cart' => $cart->ident]) }}">
                         @csrf
                         @method('PATCH')
-                        <select name="quantity">
-                            @for ( $i=1;  $i<=10;  $i++ )
-                                <option value="{{ $i }}"
-                                @if($i == $cart->quantity)
-                                    selected
-                                @endif
-                                > {{ $i }} </option>
-                            @endfor
-                            &nbsp;
-                            <input type="submit" value="変更">
+                        <input type="number" name="quantity" value="{{ $cart->quantity }}" min="1" max="10">
+                        <input type="submit" value="更新">
                     </form>
                 </td>
                 <!-- ここまで -->
-                <td class="td_right">&yen; {{ number_format( $cart->item->price * $cart->quantity) }}</td>
                 <td>
                     <form method="POST" action="{{ route('cart.destroy', ['cart' => $cart->ident]) }}">
                         @csrf
@@ -355,19 +335,10 @@ PATCHメソッドは、リソースの一部を更新するためのメソッド
                     </form>
                 </td>
             </tr>
-            @php
-                $total += $cart->item->price * $cart->quantity;
-            @endphp
         @endforeach
-        <tr>
-            <th colspan="5">合計金額</th><td class="td_right">&yen; {{ number_format($total) }}</td>
-            <td>&nbsp;</td>
-        </tr>
         </table>
-        <br>
-        <-- 注文するリンクはまだ作成していないので、href属性は空にしています -->
-        <a href="{{ route('index') }}">ジャンル選択に戻る</a>&nbsp;&nbsp;<a href="">注文する</a>
     @endif
+    <a href="{{ route('cart.create') }}">カートに追加</a>
 </body>
 </html>
 ```
@@ -377,16 +348,18 @@ PATCHメソッドは、リソースの一部を更新するためのメソッド
 `<form method="POST" action="{{ route('cart.update', ['cart' => $cart->ident]) }}">`: <br>
 注文数を変更するためのフォームです。
 `route`関数の第2引数に`['cart' => $cart->ident]`を指定しています。
-これにより、`$cart->ident`の値が`{cart}`に代入されます。
+これにより、`$cart->ident`の値が、ルーティングの`{cart}`に代入されます。
 
 `@method('PATCH')`: <br>
-PATCHメソッドを使うことを指定しています。
-`GET`リクエストや`POST`リクエストを使う場合は特に指定しなかったのに対し、PATCHメソッドを使う場合は明示的に指定する必要があります。
-なぜなら、ブラウザはPATCHメソッドをサポートしていないためです。
-そのため、`@method('PATCH')`を使って、PATCHメソッドを使うことを明示的に指定しています。
+`PATCH`リクエストを使うことを指定しています。
+`GET`リクエストや`POST`リクエストを使う場合は特に指定しなかったのに対し、`PATCH`メソッドを使う場合は明示的に指定する必要があります。
+なぜなら、ブラウザは`PATCH`リクエストをサポートしていないためです。
+そのため、`@method('PATCH')`を使って、`PATCH`リクエストを使うことを明示的に指定しています。
 これにより、ルーティングを見るだけで、更新機能があることがわかります。
 
-### コントローラに更新機能を実装
+{% endraw %}
+
+### コントローラの修正(`update`メソッドの追加)
 
 `app/Http/Controllers/CartController.php`を以下のように修正します。
 
@@ -399,31 +372,7 @@ use App\Models\Cart;
 
 class CartController extends Controller
 {
-    public function index()
-    {
-        $carts = Cart::with('item')->get();
-        return view('cart.index', ['carts' => $carts]);
-    }
-
-    public function store(Request $request)
-    {
-        // 既にカートに入っている商品かチェック
-        $cart = Cart::find($request->ident);
-        if ($cart) {
-            $new_quantity = $request->quantity + $cart->quantity;
-            if ($new_quantity > 10) {
-                $new_quantity = 10;
-            }
-            $cart->quantity = $new_quantity;
-            $cart->update(['quantity' => $new_quantity]);
-        } else {
-            Cart::create([
-                'ident' => $request->ident,
-                'quantity' => $request->quantity,
-            ]);
-        }
-        return redirect()->route('cart.index');
-    }
+    // 途中省略
 
     public function destroy(Cart $cart)
     {
@@ -434,7 +383,11 @@ class CartController extends Controller
     // --- 以下を追加 ---
     public function update(Request $request, Cart $cart)
     {
-        $cart->update(['quantity' => $request->quantity]);
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1|max:10',
+        ]);
+        $cart->update(['quantity' => $validated['quantity']]);
+        $request->session()->flash('message', '更新しました');
         return redirect()->route('cart.index');
     }
     // --- ここまで ---
@@ -453,33 +406,38 @@ Laravelでは、コントローラのメソッドにupdateと命名する場合�
 これにより、指定したレコードの注文数が変更されます。
 
 カート内の商品の注文数を変更する機能が実装できました。
-動作確認をしてみましょう。
 
-以下のようにカート内の商品画面で注文数を変更し、更新ボタンを押すと、注文数が変更されることを確認してください。
+## 動作確認(2回目:更新機能)
 
-![](./images/cart_update1.png)
-![](./images/cart_update2.png)
-![](./images/cart_update3.png)
+以下の手順で動作確認をしてみましょう。
 
-phpMyAdminでもデータの整合性を確認してみましょう。
-![](./images/phpmyadmin_update.png)
+1. `http://localhost:{ポート番号}/cart`でカート一覧画面にアクセスする<br>
+   ![](./images/update_kakunin1.png)
+2. カート追加画面にアクセスする<br>
+   ![](./images/update_kakunin2.png)
+3. 商品番号と数量を入力し、カートに追加する<br>
+   ![](./images/update_kakunin3.png)
+4. カート一覧画面に遷移し、商品が追加されていることを確認する<br>
+   ![](./images/update_kakunin4.png)
+5. 注文数を変更し、更新ボタンを押す<br>
+   ![](./images/update_kakunin5.png)
+6. カート一覧画面に遷移し、商品の注文数が変更されていることを確認する<br>
+   ![](./images/update_kakunin6.png)
+7. phpMyAdminでもデータの整合性を確認できたらOK<br>
+   ![](./images/update_kakunin7.png)
 
 ## まとめ
 
-本章では、Laravelを使って、カートの削除・更新機能を作成しました。
-以前の章も含めると、カート内の商品画面が完成され、データベースのCRUD操作ができるようになりました。
-ここでいうCRUD操作とは、Create（作成）、Read（読み取り）、Update（更新）、Delete（削除）のことです。
+本章までで、Laravelを使って、CRUD機能(Create（作成）、Read（読み取り）、Update（更新）、Delete（削除）)を実装する方法を学びました。
 
 また、できあがったカートについてのルーティングは以下のようになります。
 
 ```php
 Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('cart/create', [CartController::class, 'create'])->name('cart.create');
 Route::post('cart', [CartController::class, 'store'])->name('cart.store');
 Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.destroy');
 Route::patch('cart/{cart}',[CartController::class, 'update'])->name('cart.update');
 ```
 
-ルーティングを見るだけで、カート内の商品画面に対して、商品の一覧表示、商品の追加、商品の削除、商品の更新ができることがわかります。
-
-これで、カート内の商品画面が完成されました。
-次回は、注文画面を作成します。
+ルーティングを見るだけで、読み取り(`index`)、追加(`create`、`store`)、削除(`delete`)、更新(`update`)の機能があることがわかります。
