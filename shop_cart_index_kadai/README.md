@@ -49,7 +49,8 @@
     resources
     ├── views
     │   ├── items
-    │   │   └── index.blade.php    
+    │   │   ├── index.blade.php 
+    │   │   └── show.blade.php    
     │   └── index.blade.php
     routes
     ├── web.php
