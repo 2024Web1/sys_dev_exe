@@ -543,8 +543,8 @@ Route::get('item', [ItemController::class, 'index'])->name('item.index');
         </tr>
     @foreach( $items  as  $item )
         <tr>
-            <td class="td_item_name"> {{  $item->name }} </td>
-            <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
+            <td> {{  $item->name }} </td>
+            <td>&yen; {{  number_format( $item->price) }} </td>
         </tr>
     @endforeach
     </table>
