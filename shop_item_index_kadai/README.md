@@ -87,7 +87,7 @@ Route::get('/', function () {
 })->name('index');
 
 // --- 以下を追加 ---
-Route::post('/item', [ItemController::class, 'index'])->name('item.index');
+Route::post('item', [ItemController::class, 'index'])->name('item.index');
 // --- ここまで ---
 ```
 
