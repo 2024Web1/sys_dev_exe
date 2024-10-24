@@ -198,8 +198,11 @@ PHPでは、メソッド内に`$request = new Request();`と記述していた�
 
 `Item::where('genre', $request->genre)`は、いわゆるSQL文の`WHERE`句に相当する処理です。
 `Item`モデルの`genre`カラムが、リクエスト時に送られた`genre`の値と一致するレコードを取得します。
-
 `->get()`は、`where`メソッドで取得したレコードを取得します。
+
+`return view('item.index', ['items' => $items]);`: <br>
+[モデル、コントローラ](../shop_item_index/README.md)の章ではビューにデータを渡す際に、`compact`関数を使いましたが、ここでは連想配列を使ってデータを渡しています。
+どちらも利用されますので、この機会に覚えておくと良いでしょう。
 
 ## ⑥ジャンル別商品一覧画面の作成
 
