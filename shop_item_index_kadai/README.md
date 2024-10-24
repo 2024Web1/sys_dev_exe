@@ -93,12 +93,12 @@ Route::post('item', [ItemController::class, 'index'])->name('item.index');
 
 **【解説】**
 
-`Route::post('/item', [ItemController::class, 'index'])->name('item.index');`:<br>
+`Route::post('item', [ItemController::class, 'index'])->name('item.index');`:<br>
 
 `Route::post`メソッドは、`POST`リクエストを受け取るルーティングを設定します。
 ジャンル別選択画面の送信ボタンを押すと、`POST`リクエストが送信されるため、`POST`リクエストを受け取るルーティングを設定します。
 
-第1引数には、URLを指定し、`/item`となっています。
+第1引数には、URLを指定し、`item`となっています。
 第2引数には、コントローラを指定します。
 こちらは、[モデル、コントローラ](../shop_item_index/README.md)の章で説明しているので割愛します。
 
