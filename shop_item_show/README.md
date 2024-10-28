@@ -89,18 +89,21 @@ PHPでいうところの、GETリクエスト時のクエリパラメータに�
         <tr>
             <td class="td_item_name"> {{  $item->name }} </td>
             <td class="td_right">&yen; {{  number_format( $item->price) }} </td>
+            <!-- 以下を追加 -->
             <td><a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a></td>
+            <!-- ここまで -->
         </tr>
     @endforeach
     </table>
 </body>
 </html>
 ```
-{% endraw %}
+
 
 **【解説】**
 
 `<a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>`: <br>
+{% endraw %}
 商品詳細画面に遷移するためのリンクです。
 `route('item.show',  ['item' => $item->ident])`は、商品詳細画面に遷移するためのURLを生成しています。
 `['item' => $item->ident]`は、itemという名前で指定した商品IDが、ルーティングで設定された`Route::get('item/show/{item}', [ItemController::class, 'show']);`の`{item}`に渡されます。

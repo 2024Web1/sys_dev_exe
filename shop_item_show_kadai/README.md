@@ -189,7 +189,6 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 
 提出した課題はGitHub上で自動採点されます。
 従来通りGitHub上にpushすれば完了で、自動採点がはじまります。
-ただし、**pushする前に以下の作業を事前に行わないと自動採点ができない**ので、以下の対応を忘れずに行ってください。
 
 ### 課題の合格基準
 
