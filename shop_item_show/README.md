@@ -167,10 +167,12 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 
 **`resources/views/index.blade.php`**
 
+{% raw %}
 ```php
 // ルーティングの定義を一致させるために、['item' => $item->ident]で`item`という名前で指定した商品IDを渡している
 <a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>
 ```
+{% endraw %}
 
 ルートモデルバインディングを使うことで、コントローラで商品IDに対応する商品情報を取得するコードを記述する必要がなくなるので、コードがスッキリします。
 
