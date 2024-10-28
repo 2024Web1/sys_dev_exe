@@ -103,7 +103,6 @@ PHPでいうところの、GETリクエスト時のクエリパラメータに�
 **【解説】**
 
 `<a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>`: <br>
-{% endraw %}
 商品詳細画面に遷移するためのリンクです。
 `route('item.show',  ['item' => $item->ident])`は、商品詳細画面に遷移するためのURLを生成しています。
 `['item' => $item->ident]`は、itemという名前で指定した商品IDが、ルーティングで設定された`Route::get('item/show/{item}', [ItemController::class, 'show']);`の`{item}`に渡されます。
@@ -167,7 +166,7 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 
 **`resources/views/index.blade.php`**
 
-{% raw %}
+
 ```php
 // ルーティングの定義を一致させるために、['item' => $item->ident]で`item`という名前で指定した商品IDを渡している
 <a href="{{ route('item.show',  ['item' => $item->ident]) }}">詳細</a>
