@@ -11,7 +11,7 @@
 
 ## 事前準備
 
-[こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
+[こちらのページ](https://classroom.github.com/a/zmHp0OfY)から、ソースコードを`C:¥sys_dev_exe`へcloneしてください。
 
 ## 本章の狙い
 
@@ -202,7 +202,7 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 
 ---
 
-1. 本課題の[課題ページ]()に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/zmHp0OfY)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 1. **一番上**の行に、緑色のチェックが入っていればOK<br>
