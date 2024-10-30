@@ -122,7 +122,9 @@ Route::post('item', [ItemController::class, 'index'])->name('item.index');
 
 <body>
 <h3>ジャンル選択</h3>
+<!-- 以下のaction属性を修正 -->
 <form method="POST" action="{{ route('item.index') }}">
+<!-- ここまで -->
     @csrf
     <label><input type="radio" name="genre" value="pc">パソコン</label>&nbsp;&nbsp;
     <label><input type="radio" name="genre" value="book" checked>ブック</label>&nbsp;&nbsp;
