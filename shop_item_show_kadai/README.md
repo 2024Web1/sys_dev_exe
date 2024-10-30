@@ -80,7 +80,7 @@
 
 ルーティングを追加するためには、`routes/web.php`ファイルを以下の観点から修正してください。
 
-- GETリクエスト時にItemControllerの`show`メソッドを呼び出すルートを追加する
+- `GET`リクエスト時に`ItemController`の`show`メソッドを呼び出すルートを追加する
 - マッピングするURLを`item/show/{xxxx}`に設定する(`xxxx`にはルートモデルバインディングのための名前を指定する※わからなければ[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)の章を参考にすること)
 - ルーティングの名前を`item.show`に設定する
 
