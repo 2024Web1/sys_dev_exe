@@ -20,6 +20,8 @@
 
 前回の[Laravelの便利な実装(ルートモデルバインディング)](../shop_item_show/README.md)で使用したコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
 
+※上記環境で動作が遅い場合は、[こちらのリンク](https://classroom.github.com/a/O_3YzAHj)から、動作が軽い環境をcloneし、利用ください。(なお、課題同様、Laravelの環境構築が再度必要です。)
+
 ## 本章の狙い
 
 - LaravelでCRUD機能を実装する方法を学ぶ
