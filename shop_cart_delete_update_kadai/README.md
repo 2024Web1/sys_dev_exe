@@ -46,6 +46,9 @@
     ├── seeds
     │   ├── DatabaseSeeder.php
     │   └── ItemsTableSeeder.php
+    │
+    途中省略
+    │
     public
     ├── css
     │   └── minishop.css
