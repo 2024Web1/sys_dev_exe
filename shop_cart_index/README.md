@@ -362,8 +362,6 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 
 先ほどの`create.blade.php`に、以下のメッセージを表示するためのコードを追加します。
 
-- 
-
 **resources/views/cart/create.blade.php**
 
 {% raw %}
