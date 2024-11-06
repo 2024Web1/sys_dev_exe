@@ -173,6 +173,8 @@ Laravelでは、基本的には、**モデル名は単数形**、そのモデル
 
 `public function item()`: <br>
 `item`メソッドは、`Cart`モデルと`Item`モデルのリレーションを設定するメソッドです。
+※これを設定する理由は、前記のように`cart`テーブルに`items`テーブルの商品情報を結合するためです。
+今回は`cart`テーブルへのCreateのみですので、`item`メソッドが無くても動きますが、**課題にて記述しますので**覚えておきましょう。
 
 `return $this->belongsTo(Item::class, 'ident', 'ident');`: <br>
 `belongsTo`メソッドは、リレーション先のモデルを取得するメソッドです。
@@ -301,35 +303,35 @@ Route::post('cart', [CartController::class, 'store'])->name('cart.store');
 
 **app/Http/Controllers/CartController.php**
 
-    ```php
-    <?php
-    namespace App\Http\Controllers;
+```php
+<?php
+namespace App\Http\Controllers;
 
-    use Illuminate\Http\Request;
-    use App\Models\Cart;
+use Illuminate\Http\Request;
+use App\Models\Cart;
 
-    class CartController extends Controller
+class CartController extends Controller
+{
+    public function create()
     {
-        public function create()
-        {
-            return view('cart.create');
-        }
-
-        // --- 以下を追加 ---
-
-        public function store(Request $request)
-        {
-            $validated = $request->validate([
-                'ident' => 'required|integer',
-                'quantity' => 'required|integer',
-            ]);
-            $cart = Cart::create($validated);
-            $request->session()->flash('message', 'カートに追加しました');
-            return back();
-        }
-        // --- ここまで ---
+        return view('cart.create');
     }
-    ```
+
+    // --- 以下を追加 ---
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'ident' => 'required|integer',
+            'quantity' => 'required|integer',
+        ]);
+        $cart = Cart::create($validated);
+        $request->session()->flash('message', 'カートに追加しました');
+        return back();
+    }
+    // --- ここまで ---
+}
+```
 
 **【解説】**
 
