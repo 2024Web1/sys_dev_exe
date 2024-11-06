@@ -18,7 +18,7 @@
 
 ## 事前準備
 
-1. [こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneする
+1. [こちらのページ](https://classroom.github.com/a/p90fU8Zx)から、ソースコードを`C:¥sys_dev_exe`へcloneする
 2. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
 3. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 4. `composer create-project laravel/laravel .` を実行し、Laravel環境を構築する
@@ -321,15 +321,15 @@
 
 以下を合格基準とします。
 
-1. 商品詳細画面からカートに商品を追加できる
-2. 既にカートに入っている商品を追加すると、注文数が加算される
-3. 注文数が10を超える場合は、10に設定される
+1. データベースに接続できる
+2. 商品一覧が表示される
+3. 商品詳細画面からカートに商品を追加できる
 
 ### 合格確認方法
 
 ---
 
-1. 本課題の[課題ページ]()に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/p90fU8Zx)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 1. **一番上**の行に、緑色のチェックが入っていればOK<br>
