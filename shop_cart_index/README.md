@@ -171,7 +171,7 @@ Laravelでは、基本的には、**モデル名は単数形**、そのモデル
 `public $timestamps`プロパティは、モデルの作成日時と更新日時を自動で更新するかどうかを指定するプロパティです。
 ここでは、`cart`テーブルには作成日時と更新日時を持たせないため、`false`を指定しています。
 
-public function item()`: <br>
+`public function item()`: <br>
 `item`メソッドは、`Cart`モデルと`Item`モデルのリレーションを設定するメソッドです。
 
 `return $this->belongsTo(Item::class, 'ident', 'ident');`: <br>
@@ -206,23 +206,23 @@ php artisan make:controller CartController
 
 **app/Http/Controllers/CartController.php**
 
-    ```php
-    <?php
-    namespace App\Http\Controllers;
+```php
+<?php
+namespace App\Http\Controllers;
 
-    use Illuminate\Http\Request;
-    use App\Models\Cart; // 追加
+use Illuminate\Http\Request;
+use App\Models\Cart; // 追加
 
-    class CartController extends Controller
+class CartController extends Controller
+{
+    // --- 以下を追加 ---
+    public function create()
     {
-        // --- 以下を追加 ---
-        public function create()
-        {
-            return view('cart.create');
-        }
-        // --- ここまで ---
+        return view('cart.create');
     }
-    ```
+    // --- ここまで ---
+}
+```
 
 **【解説】**
 
