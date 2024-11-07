@@ -437,7 +437,7 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 
 1. `http://localhost:{ポート番号}/cart/create`にアクセスし、商品番号と数量を入力せずに「カートに追加」ボタンをクリック
 2. 以下のような英語のエラーメッセージが表示される<br>
-![](./images/validation_error.png)
+![](./images/validation_error_en.png)
 
 これを日本語に変更するためには、以下のような手順が必要です。
 
