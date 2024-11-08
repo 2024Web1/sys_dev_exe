@@ -342,6 +342,8 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 `validate`メソッドは、リクエストデータのバリデーションを行うメソッドです。
 第1引数には、バリデーションルールを指定します。
 ここでは、`ident`カラムと`quantity`カラムに対して、`required`と`integer`のバリデーションルールを設定しています。
+`required`は、必須入力を指定するバリデーションルールです。
+`integer`は、数値型の入力を指定するバリデーションルールです。
 
 **【補足(バリデーションについて)】**<br>
 バリデーションとは、データの正当性を検証することです。
@@ -394,7 +396,9 @@ Laravelでは、コントローラに記述する`store` メソッドは、「�
 
     <!-- ここまで -->
 
+    <!-- action属性にルーティング名を指定 -->
     <form action="{{ route('cart.store') }}" method="POST">
+    <!-- ここまで -->
     @csrf
     番号:<input type="number" name="ident" min="1" max="15"><br>
     数量:<input type="number" name="quantity" min="1" max="10"><br><br>
