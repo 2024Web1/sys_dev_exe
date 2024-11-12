@@ -1,6 +1,6 @@
-# CRUD機能を作ろう！(UPDATE、DELETE編)
+# CRUD機能を作ろう！(Update、Delete編)
 
-- [CRUD機能を作ろう！(UPDATE、DELETE編)](#crud機能を作ろうupdatedelete編)
+- [CRUD機能を作ろう！(Update、Delete編)](#crud機能を作ろうupdatedelete編)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
   - [CRUDとは](#crudとは)
@@ -19,6 +19,8 @@
 ## 事前準備
 
 前回の[CRUD機能を作ろう！(Create編)](../shop_cart_index/README.md)で使用したコード(`21-first-laravel-GitHubアカウント名`)をそのまま利用してください。
+
+※動作が遅い場合は、[こちらのリンク](https://classroom.github.com/a/O_3YzAHj)から、動作が軽い環境をcloneし、利用ください。(なお、課題同様、Laravelの環境構築が再度必要です。)
 
 ## はじめに
 
@@ -77,7 +79,7 @@ Route::delete('cart/{cart}',[CartController::class, 'destroy'])->name('cart.dest
 `CartController`の`destroy`メソッドを呼び出します。
 `Route::delete`メソッドを使って、HTTPメソッドが`DELETE`のリクエストを受け付けるように設定しています。
 
-今までのリクエストは`GET`と`POST`だけでしたが、今回は`DELETE`メソッドを使います。
+今までのリクエストは`GET`と`POST`だけでしたが、今回は`DELETE`リクエストを使います。
 `GET`や`POST`を使っても同様のルーティングを設定できますが、処理の性質によって使い分けます。
 
 ### ビューの作成(カート一覧画面の作成とリンク修正)
