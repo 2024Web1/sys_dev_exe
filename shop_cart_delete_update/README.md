@@ -165,15 +165,20 @@ HTTPのリクエストメソッドにおける`DELETE`リクエストは、リ�
     @if (session('message'))
         <font color="red">{{ session('message') }}</font>
     @endif
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <font color="red">{{ $error }}</font><br>
+        @endforeach
+    @endif
     <form action="{{ route('cart.store') }}" method="POST">
     @csrf
     番号:<input type="number" name="ident" min="1" max="15"><br>
     数量:<input type="number" name="quantity" min="1" max="10"><br><br>
     <input type="submit" value="カートに追加">
     </form>
-    // --以下を追加--
+    <!-- 以下を追加 -->
     <a href="{{ route('cart.index') }}">カート一覧へ</a>
-    // --ここまで--
+    <!-- ここまで -->
 </body>
 </html>
 ```
