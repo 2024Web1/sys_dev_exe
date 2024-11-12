@@ -1,6 +1,6 @@
-# CRUD機能を作ろう！(Update、Delete編)
+# CRUD機能を作ろう！(Delete、Update編)
 
-- [CRUD機能を作ろう！(Update、Delete編)](#crud機能を作ろうupdatedelete編)
+- [CRUD機能を作ろう！(Delete、Update編)](#crud機能を作ろうdeleteupdate編)
   - [事前準備](#事前準備)
   - [はじめに](#はじめに)
   - [CRUDとは](#crudとは)
@@ -40,7 +40,7 @@ CRUDとは、データベース操作の基本的な機能の頭文字を取っ�
 - Update（更新）: SQLのUPDATE文に相当
 - Delete（削除）: SQLのDELETE文に相当
 
-本章では、CRUDのうち、UpdateとDeleteの機能を実装します。
+本章では、CRUDのうち、DeleteとUpdateの機能を実装します。
 
 ## 削除機能をもったカート一覧画面の作成
 
