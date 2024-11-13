@@ -181,6 +181,13 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 第2引数の`'item/{genre?}'`は、商品詳細画面からジャンル別商品一覧に戻るリンクをクリックした際に、ジャンル別商品一覧画面に遷移するためのURLです。
 `{genre?}`の`?`は、`POST`リクエスト時にURL末尾にパラメータでジャンルが指定されていない場合でも、問題なく遷移できるようにするためのものです。
 
+また、`resources/views/item/show.blade.php`ファイルのジャンル別商品一覧に戻るリンクを以下のように修正してください。
+
+```php
+<a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>
+```
+
+
 以上で、商品詳細画面のバグ修正は完了です。
 
 ## ⑦動作確認(2回目)
