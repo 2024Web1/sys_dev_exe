@@ -183,9 +183,11 @@ Route::get('item/show/{item}', [ItemController::class, 'show'])->name('item.show
 
 また、`resources/views/item/show.blade.php`ファイルのジャンル別商品一覧に戻るリンクを以下のように修正してください。
 
+< %raw >
 ```php
 <a href="{{ route('item.index',['genre' => $item->genre])}}">ジャンル別商品一覧に戻る</a>
 ```
+< %endraw >
 
 
 以上で、商品詳細画面のバグ修正は完了です。
