@@ -323,7 +323,7 @@ class CartController extends Controller
 }
 ```
 
-###  ③-4 動作確認(更新機能)
+### ③-4 動作確認(更新機能)
 
 ---
 
