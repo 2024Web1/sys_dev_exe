@@ -21,7 +21,7 @@
 
 ## 事前準備
 
-1. [こちらのページ]()から、ソースコードを`C:¥sys_dev_exe`へcloneする
+1. [こちらのページ](https://classroom.github.com/a/5-VEu3bF)から、ソースコードを`C:¥sys_dev_exe`へcloneする
 2. VSCode上で、`Ctrl+Shift+P`(Macの場合は`Cmd+Shift+P`)を押し、コンテナを起動する
 3. VSCode上で、`Ctrl+J`(Macの場合は`Cmd+J`)を押し、ターミナルを表示する
 4. `composer create-project laravel/laravel .` を実行し、Laravel環境を構築する
@@ -413,7 +413,7 @@ php artisan make:migration create_orderdetails_table
 
 ---
 
-1. 本課題の[課題ページ](https://classroom.github.com/a/zmHp0OfY)に再度アクセスする
+1. 本課題の[課題ページ](https://classroom.github.com/a/5-VEu3bF)に再度アクセスする
 2. 画面上部にある`Actions`をクリックする<br>
 ![](./images/acions.png)
 1. **一番上**の行に、緑色のチェックが入っていればOK<br>
