@@ -50,7 +50,7 @@
     │
     resources
     ├── views
-    │   ├── items
+    │   ├── item
     │   │   ├── index.blade.php 
     │   │   └── show.blade.php    
     │   └── index.blade.php
