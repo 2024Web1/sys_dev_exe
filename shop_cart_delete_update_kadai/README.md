@@ -45,7 +45,7 @@
     │   └── 20XX_XX_XX_XXXXXX_create_cart_table.php
     ├── seeds
     │   ├── DatabaseSeeder.php
-    │   └── ItemsTableSeeder.php
+    │   └── ItemTableSeeder.php
     │
     途中省略
     │
