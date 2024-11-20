@@ -49,7 +49,7 @@
     │   └── 20XX_XX_XX_XXXXXX_create_items_table.php
     ├── seeds
     │   ├── DatabaseSeeder.php
-    │   └── ItemsTableSeeder.php
+    │   └── ItemTableSeeder.php
     public
     ├── css
     │   └── minishop.css
