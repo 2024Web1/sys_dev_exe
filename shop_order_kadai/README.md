@@ -342,7 +342,7 @@ php artisan make:migration create_orderdetails_table
 2. `order`ディレクトリに`index.blade.php`を作成し、以下のように記述する
 
     **resources/views/order/index.blade.php**
-
+{% raw %}
     ```php
     <!DOCTYPE html>
     <html lang="ja">
@@ -389,6 +389,7 @@ php artisan make:migration create_orderdetails_table
     </body>
     </html>
     ```
+    {% endraw %}
 
 ## ⑤動作確認
 
