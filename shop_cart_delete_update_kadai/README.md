@@ -110,6 +110,7 @@
 `resources/views/cart/index.blade.php`を以下のように修正します。
 穴埋めになっている箇所は、[CRUD機能を作ろう！(UPDATE、DELETE編)](../shop_cart_delete_update/README.md)を参考に、埋めるようにしてください。
 
+{% raw %}
 ```php
 <!DOCTYPE html>
 <html lang="ja">
@@ -179,6 +180,7 @@
 </body>
 </html>
 ```
+{% endraw %}
 
 ### ②-3 コントローラに削除機能を実装
 
@@ -242,6 +244,7 @@ phpMyAdminでもデータの整合性を確認してみましょう。
 
 `resources/views/cart/index.blade.php`を以下のように修正します。
 
+{% raw %}
 ```php
 <!DOCTYPE html>
 <html lang="ja">
@@ -288,6 +291,7 @@ phpMyAdminでもデータの整合性を確認してみましょう。
                 </td>
                 <!-- ここまで、以下省略 -->
 ```
+{% endraw %}
 
 ### ③-3 コントローラに更新機能を実装
 
