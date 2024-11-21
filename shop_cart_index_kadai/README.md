@@ -150,37 +150,41 @@
 
     use Illuminate\Http\Request;
     // Cartモデルを使う宣言を追加(穴埋め)
-    use                        
-
-    // 引数にRequestクラスを指定(穴埋め)
-    public function store(              )
+    use
+    
+    class CartController extends Controller
     {
-        // バリデーションを実施
-        $validated = $request->validate([
-            // itemsテーブルのidentカラムに対して、必須入力と整数型のバリデーションを設定
-            'ident' => 'required|exists:items,ident',
-            // cartテーブルのquantityカラムに対して、必須入力、整数型のバリデーション、最小値1、最大値10のバリデーションを設定
-            'quantity' => 'required|integer|min:1|max:10',
-        ]);
-        // 主キーでレコードを取得(穴埋め)
-        $cart = 
-        // 既にカートに商品が入っている場合(穴埋め)
-        if (    ) {
-            // カートに登録されている注文数と追加する注文数を加算(穴埋め)
-            $new_quantity = 
-            // 注文数が10を超える場合は、10に設定(穴埋め)
-            if (                  ) {
+
+        // 引数にRequestクラスを指定(穴埋め)
+        public function store(              )
+        {
+            // バリデーションを実施
+            $validated = $request->validate([
+                // itemsテーブルのidentカラムに対して、必須入力と整数型のバリデーションを設定
+                'ident' => 'required|exists:items,ident',
+                // cartテーブルのquantityカラムに対して、必須入力、整数型のバリデーション、最小値1、最大値10のバリデーションを設定
+                'quantity' => 'required|integer|min:1|max:10',
+            ]);
+            // 主キーでレコードを取得(穴埋め)
+            $cart = 
+            // 既にカートに商品が入っている場合(穴埋め)
+            if (    ) {
+                // カートに登録されている注文数と追加する注文数を加算(穴埋め)
                 $new_quantity = 
+                // 注文数が10を超える場合は、10に設定(穴埋め)
+                if (                  ) {
+                    $new_quantity = 
+                }
+                // 注文数を更新(穴埋め)
+                $cart->
+            // カートに商品が入っていない場合
+            } else {
+                // 商品番号と注文数を登録(穴埋め)
+                Cart::
             }
-            // 注文数を更新(穴埋め)
-            $cart->
-        // カートに商品が入っていない場合
-        } else {
-            // 商品番号と注文数を登録(穴埋め)
-            Cart::
+            // カート内の商品一覧を表示するindexメソッドにリダイレクト(穴埋め)
+            return 
         }
-        // カート内の商品一覧を表示するindexメソッドにリダイレクト(穴埋め)
-        return 
     ```
 
 ## ⑤コントローラに`index`メソッドを作成
