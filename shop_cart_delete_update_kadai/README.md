@@ -285,6 +285,7 @@ phpMyAdminでもデータの整合性を確認してみましょう。
                                 @endif
                                 > {{ $i }} </option>
                             @endfor
+                        </select>
                             &nbsp;
                             <input type="submit" value="変更">
                     </form>
